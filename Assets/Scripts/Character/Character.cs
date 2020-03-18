@@ -9,10 +9,11 @@ public class Character
     Animator Animator;
     CharacterDetector Detector;
     string Name;
+    public bool TurnFlag;
     public Character(MainGame mainGame,string name)
     {
         Name = name;
-
+        TurnFlag = false;
         myGameObject = GameObject.Find(Name);
         Animator = myGameObject.GetComponent<Animator>();
         Detector = myGameObject.GetComponent<CharacterDetector>();
@@ -106,9 +107,11 @@ public class Character
         {
             case "right":
                 myGameObject.transform.eulerAngles = new Vector3(0, 0, 0);
+                TurnFlag = false;
                 break;
             case "left":
                 myGameObject.transform.eulerAngles = new Vector3(0, -180, 0);
+                TurnFlag = true;
                 break;
         }
         

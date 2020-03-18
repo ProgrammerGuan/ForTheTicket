@@ -92,9 +92,17 @@ public class MainGame : MonoBehaviour
         switch (msg.Type)
         {
             case Message.Login:
-                var data = JsonUtility.FromJson<LoginMessage>(msg.Data);
-                CreatPlayer(data.Name, "man",data.X,data.Y);
-                Debug.Log(data.Name + " Login");
+                var LoginData = JsonUtility.FromJson<LoginMessage>(msg.Data);
+                CreatPlayer(LoginData.Name, "man",LoginData.X,LoginData.Y);
+                Debug.Log(LoginData.Name + " Login");
+                break;
+            case Message.Move:
+                var MoveData = JsonUtility.FromJson<PlayerData>(msg.Data);
+                PlayerList[MoveData.Name].transform.position = new Vector3(MoveData.X, MoveData.Y, 0);
+                if (!MoveData.Turn)
+                    PlayerList[MoveData.Name].transform.eulerAngles = new Vector3(0, 0, 0);
+                else PlayerList[MoveData.Name].transform.eulerAngles = new Vector3(0, -180, 0);
+                Debug.Log(MoveData.Name + "Moving");
                 break;
         }
         
@@ -103,7 +111,13 @@ public class MainGame : MonoBehaviour
     void UpdateMyself()
     {
         var data = new UpdateMyselfMessage();
-        
+        var playDatas = new PlayerData();
+        playDatas.Name = myName;
+        playDatas.X = PlayerList[myName].transform.position.x;
+        playDatas.Y = PlayerList[myName].transform.position.y;
+        playDatas.Turn = PlayerList[myName].TurnFlag;
+        data.MyDatas = playDatas;
+        Send(Message.Move, data);
     }
 
 }
@@ -112,6 +126,7 @@ public class MainGame : MonoBehaviour
 public partial struct Message
 {
     public const string Login = "Login";
+    public const string Move = "Move";
 }
 
 class LoginMessage
@@ -123,7 +138,7 @@ class LoginMessage
 
 class UpdateMyselfMessage
 {
-    public PlayerData MyDaras;
+    public PlayerData MyDatas;
 }
 
 [SerializeField]
@@ -132,5 +147,6 @@ public struct PlayerData
     public string Name;
     public float X;
     public float Y;
+    public bool Turn;
 }
 
