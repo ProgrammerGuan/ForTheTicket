@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ManJump
+  m_Name: ManGotDamage
   serializedVersion: 6
   m_Legacy: 0
   m_Compressed: 0
@@ -20,9 +20,11 @@ AnimationClip:
   m_PPtrCurves:
   - curve:
     - time: 0
-      value: {fileID: 21300000, guid: b62df0e0ce8b4fc4bb48d7415f7bed2d, type: 3}
-    - time: 0.33333334
-      value: {fileID: 21300000, guid: 42ae4948ebb581a4eab93575a8e12a65, type: 3}
+      value: {fileID: 21300000, guid: 69ee42db10bb94841bb4fae188f381dc, type: 3}
+    - time: 0.5
+      value: {fileID: 21300000, guid: 18fc4968e1e22394f8ebd40a66f29ff4, type: 3}
+    - time: 0.8333333
+      value: {fileID: 21300000, guid: 807978030c4fef64db8021918dcb4436, type: 3}
     - time: 1
       value: {fileID: 21300000, guid: 807978030c4fef64db8021918dcb4436, type: 3}
     attribute: m_Sprite
@@ -44,8 +46,9 @@ AnimationClip:
       customType: 23
       isPPtrCurve: 1
     pptrCurveMapping:
-    - {fileID: 21300000, guid: b62df0e0ce8b4fc4bb48d7415f7bed2d, type: 3}
-    - {fileID: 21300000, guid: 42ae4948ebb581a4eab93575a8e12a65, type: 3}
+    - {fileID: 21300000, guid: 69ee42db10bb94841bb4fae188f381dc, type: 3}
+    - {fileID: 21300000, guid: 18fc4968e1e22394f8ebd40a66f29ff4, type: 3}
+    - {fileID: 21300000, guid: 807978030c4fef64db8021918dcb4436, type: 3}
     - {fileID: 21300000, guid: 807978030c4fef64db8021918dcb4436, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2

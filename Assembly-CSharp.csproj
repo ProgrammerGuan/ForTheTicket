@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Character\Character.cs" />
     <Compile Include="Assets\Scripts\Character\CharacterController.cs" />
+    <Compile Include="Assets\Scripts\Character\CharacterDetector.cs" />
     <Compile Include="Assets\Scripts\Character\MainGame.cs" />
     <Compile Include="Assets\Scripts\Character\Parameters.cs" />
     <None Include="Assets\FreeAssets\kenney_tooncharacters1\Male adventurer\Tilesheet\character_maleAdventurer_sheetHD.xml" />

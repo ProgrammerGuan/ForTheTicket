@@ -7,12 +7,15 @@ public class Character
     MainGame MainGame;
     GameObject myGameObject;
     Animator Animator;
-    bool KickFlag;
-    public Character(MainGame mainGame)
+    CharacterDetector Detector;
+    string Name;
+    public Character(MainGame mainGame,string name)
     {
-        myGameObject = GameObject.FindGameObjectWithTag("Player");
+        Name = name;
+
+        myGameObject = GameObject.Find(Name);
         Animator = myGameObject.GetComponent<Animator>();
-        KickFlag = false;
+        Detector = myGameObject.GetComponent<CharacterDetector>();
         MainGame = mainGame;
     }
     public Transform transform => myGameObject.transform;
@@ -39,7 +42,6 @@ public class Character
                 Kick();
                 break;
             case ControlOrder.Idle:
-                KickFlag = false;
                 SetAnimation("Idle");
                 break;
             }
@@ -50,15 +52,28 @@ public class Character
     private void Jump()
     {
         Parameters.JumpTime = Time.time;
-        MainGame.StartCoroutine(SetJumpAnimation());
+        MainGame.StartCoroutine(SetAction("Jump",Parameters.JumpCoolDownTime));
         myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.up*5;
     }
 
     private void Kick()
     {
         Parameters.ActionTime = Time.time;
-        KickFlag = true;
-        SetAnimation("Kick");
+        if (myGameObject.transform.eulerAngles == new Vector3(0, 0, 0))
+        {
+            if (Animator.GetBool("Walk") || Animator.GetBool("Jump"))
+                myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.right * 6;
+            else myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.right * 4;
+
+        }
+        else
+        {
+            if (Animator.GetBool("Walk") || Animator.GetBool("Jump"))
+                myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.left * 6;
+            else myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.left * 4;
+        }
+        MainGame.StartCoroutine(SetAction("Kick", Parameters.KickCoolDownTime-0.5f));
+
     }
 
 
@@ -68,7 +83,6 @@ public class Character
         Animator.SetBool("Walk", (action == "Walk") ? true : false);
         Animator.SetBool("Jump", (action == "Jump") ? true : false);
         Animator.SetBool("Kick", (action == "Kick") ? true : false);
-
     }
 
     private void Move(string moveForward)
@@ -100,10 +114,17 @@ public class Character
         
     }
 
-    private IEnumerator SetJumpAnimation()
+    private IEnumerator SetAction(string action,float time)
     {
-        SetAnimation("Jump");
-        yield return new WaitForSeconds(Parameters.JumpCoolDownTime);
-        Animator.SetBool("Jump", false);
+        SetAnimation(action);
+        yield return new WaitForSeconds(time);
+        Animator.SetBool(action, false);
     }
+
+    public void GotAttack()
+    {
+        SetAnimation("GotDamage");
+        Animator.SetTrigger("GotDamage");
+    }
+    
 }

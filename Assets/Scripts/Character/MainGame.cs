@@ -5,12 +5,13 @@ using UnityEngine;
 public class MainGame : MonoBehaviour
 {
     CharacterController Controller;
-    Character Character;
+    Dictionary<string, Character> PlayerList;
+    string myName;
     // Start is called before the first frame update
     private void Awake()
     {
-        Character = new Character(this);
         Controller = new CharacterController();
+        PlayerList = new Dictionary<string, Character>();
     }
     void Start()
     {
@@ -20,7 +21,18 @@ public class MainGame : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Character.Action(Controller.GetControl());
+        PlayerList[myName].Action(Controller.GetControl());
+    }
+
+    public void PlayerGotDamage(string playerName)
+    {
 
     }
+
+    public void CreatPlayer(string playerName)
+    {
+        var Character = new Character(this,playerName);
+        PlayerList.Add(playerName, Character);
+    }
+
 }
