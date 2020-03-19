@@ -22,7 +22,7 @@ public class WsClient
     void onMessage(object sender, MessageEventArgs e)
     {
         var msg = JsonUtility.FromJson<Message>(e.Data);
-        Debug.Log("Type :" + msg.Type);
+        //Debug.Log("Type :" + msg.Type);
         OnMessage(msg);
     }
 

@@ -88,7 +88,7 @@ public class Character
 
     private void Move(string moveForward)
     {
-        if(!Animator.GetBool("Jump"))
+        if (!Animator.GetBool("Jump"))
             SetAnimation("Walk");
         switch (moveForward)
         {
