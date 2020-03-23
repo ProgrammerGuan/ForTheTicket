@@ -18,7 +18,7 @@ public class CharacterDetector : MonoBehaviour
     {
         if (collision.gameObject.tag == "AttackCollision")
         {
-            MainGame.PlayerGotDamage(myName);
+            MainGame.MineGotDamage(myName);
         }
     }
 }

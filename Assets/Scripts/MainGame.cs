@@ -15,6 +15,7 @@ public class MainGame : MonoBehaviour
     bool startGameFlag;
     WsClient client;
     Stack<Message> messages = new Stack<Message>();
+    bool sendIdle = false;
     // Start is called before the first frame update
     private void Awake()
     {
@@ -41,10 +42,26 @@ public class MainGame : MonoBehaviour
             PlayerList[myName].Action(ctrl);
             if (myPos != PlayerList[myName].transform.position)
             {
+                if (!sendIdle) sendIdle = true;
                 var actMessage = new PlayerActionMessage();
                 var act = new PlayerAction();
                 act.Name = myName;
                 act.Control = ctrl;
+                act.X = PlayerList[myName].transform.position.x;
+                act.Y = PlayerList[myName].transform.position.y;
+                act.Turn = PlayerList[myName].TurnFlag;
+                actMessage.Data = act;
+                Send(Message.Act, actMessage);
+                myPos = PlayerList[myName].transform.position;
+            }
+            else if (sendIdle)
+            {
+                sendIdle = false;
+                var actMessage = new PlayerActionMessage();
+                var act = new PlayerAction();
+                act.Name = myName;
+                act.Control = ctrl;
+                Debug.Log(ctrl);
                 act.X = PlayerList[myName].transform.position.x;
                 act.Y = PlayerList[myName].transform.position.y;
                 act.Turn = PlayerList[myName].TurnFlag;
@@ -68,9 +85,13 @@ public class MainGame : MonoBehaviour
         
     }
 
-    public void PlayerGotDamage(string playerName)
+    public void MineGotDamage(string playerName)
     {
-
+        var message = new PlayerGotDamageMessage();
+        var data = new PlayerGotDamageData();
+        data.Name = myName;
+        message.Data = data;
+        Send(Message.GotDamage,message);
     }
 
     public void CreatPlayer(string playerName,string characterName,float x,float y,bool Turn)
@@ -112,7 +133,7 @@ public class MainGame : MonoBehaviour
 
     void UpdateMessage(Message msg)
     {
-        Debug.Log(messages.Count);
+        //Debug.Log(messages.Count);
         switch (msg.Type)
         {
             case Message.Login:
@@ -134,6 +155,10 @@ public class MainGame : MonoBehaviour
             case Message.Act:
                 var ActData = JsonUtility.FromJson<PlayerActionMessage>(msg.Data);
                 PlayerList[ActData.Data.Name].Action(ActData.Data.Control);
+                break;
+            case Message.GotDamage:
+                var DamageData = JsonUtility.FromJson<PlayerGotDamageMessage>(msg.Data);
+                PlayerList[DamageData.Data.Name].GotDamage();
                 break;
             //case Message.Move:
             //    var MoveData = JsonUtility.FromJson<PlayerData>(msg.Data);
@@ -177,7 +202,7 @@ public partial struct Message
     public const string Login = "Login";
     public const string Act = "Act";
     public const string Join = "Join";
-    
+    public const string GotDamage = "GotDamage";
 }
 
 [Serializable]
@@ -202,6 +227,18 @@ class UpdateMyselfMessage
 class PlayerActionMessage
 {
     public PlayerAction Data;
+}
+
+[Serializable]
+class PlayerGotDamageMessage
+{
+    public PlayerGotDamageData Data;
+}
+
+[Serializable]
+class PlayerGotDamageData
+{
+    public string Name;
 }
 
 [Serializable]

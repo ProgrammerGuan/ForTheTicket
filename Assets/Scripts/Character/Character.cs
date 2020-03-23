@@ -8,6 +8,7 @@ public class Character
     GameObject myGameObject;
     Animator Animator;
     CharacterDetector Detector;
+    GameObject AttackRange;
     string Name;
     public bool TurnFlag;
     public Character(MainGame mainGame,string name)
@@ -18,6 +19,8 @@ public class Character
         Animator = myGameObject.GetComponent<Animator>();
         Detector = myGameObject.GetComponent<CharacterDetector>();
         MainGame = mainGame;
+        AttackRange = myGameObject.transform.GetChild(0).gameObject;
+        AttackRange.SetActive(false);
     }
     public Transform transform => myGameObject.transform;
 
@@ -74,16 +77,22 @@ public class Character
             else myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.left * 4;
         }
         MainGame.StartCoroutine(SetAction("Kick", Parameters.KickCoolDownTime-0.5f));
-
+        MainGame.StartCoroutine(SetKickRange());
     }
 
 
 
     private void SetAnimation(string action)
     {
-        Animator.SetBool("Walk", (action == "Walk") ? true : false);
-        Animator.SetBool("Jump", (action == "Jump") ? true : false);
-        Animator.SetBool("Kick", (action == "Kick") ? true : false);
+        if (!Animator.GetBool(action))
+        {
+            Animator.SetBool("Walk", (action == "Walk") ? true : false);
+            Animator.SetBool("Jump", (action == "Jump") ? true : false);
+            Animator.SetBool("Kick", (action == "Kick") ? true : false);
+            Animator.SetBool("Idle", (action == "Idle") ? true : false);
+            Debug.Log(Name + "Set" + action);
+        }
+            
     }
 
     private void Move(string moveForward)
@@ -124,10 +133,18 @@ public class Character
         Animator.SetBool(action, false);
     }
 
-    public void GotAttack()
+    public void GotDamage()
     {
         SetAnimation("GotDamage");
         Animator.SetTrigger("GotDamage");
+    }
+
+    private IEnumerator SetKickRange()
+    {
+        yield return new WaitForSeconds(0.3f);
+        AttackRange.SetActive(true);
+        yield return new WaitForSeconds(0.8f);
+        AttackRange.SetActive(false);
     }
     
 }
