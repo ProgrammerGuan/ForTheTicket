@@ -11,12 +11,14 @@ public class MainGame : MonoBehaviour
     Vector3 myPos;
     List<GameObject> PlayerNames;
     Button LoginButton;
+    List<Button> CharacterBtns;
     string myName;
     bool startGameFlag;
     WsClient client;
     Stack<Message> messages = new Stack<Message>();
     bool sendIdle = false;
     bool updateIdle = false;
+    string selectCharacter;
     // Start is called before the first frame update
     private void Awake()
     {
@@ -25,7 +27,10 @@ public class MainGame : MonoBehaviour
         PlayerList = new Dictionary<string, Character>();
         LoginButton = GameObject.Find("LoginButton").GetComponent<Button>();
         LoginButton.onClick.AddListener(Login);
+        CharacterBtns = new List<Button>();
+        InitialCharacterBtns();
         startGameFlag = false;
+        selectCharacter = "youngman";
     }
 
     void Start()
@@ -118,7 +123,7 @@ public class MainGame : MonoBehaviour
 
     public void CreatPlayer(string playerName,string characterName,float x,float y,bool Turn)
     {
-        var newplayer = Instantiate(Resources.Load(string.Format("Prefabs/man", characterName)), new Vector3(x,y,0), Quaternion.identity);
+        var newplayer = Instantiate(Resources.Load(string.Format("Prefabs/{0}", characterName)), new Vector3(x,y,0), Quaternion.identity);
         newplayer.name = playerName;
         GameObject.Find(newplayer.name).GetComponent<CharacterDetector>().SetMyName(newplayer.name);
         var Character = new Character(this,playerName);
@@ -132,6 +137,8 @@ public class MainGame : MonoBehaviour
     public void Login()
     {
         LoginButton.interactable = GameObject.Find("NameInput").GetComponent<InputField>().interactable = false;
+        foreach (var c in CharacterBtns) c.gameObject.SetActive(false);
+        GameObject.Find("SelectCharacterText").SetActive(false);
         myName = GameObject.Find("NameInput").transform.GetChild(2).GetComponent<Text>().text;
         startGameFlag = true;
         var data = new JoinMessage();
@@ -140,8 +147,35 @@ public class MainGame : MonoBehaviour
         Data.X = 0;
         Data.Y = 0;
         Data.Turn = false;
+        Data.Character = selectCharacter;
         data.Data = Data;
         Send(Message.Login, data);
+    }
+
+    void InitialCharacterBtns()
+    {
+        CharacterBtns.Add(GameObject.Find("youngmanBtn").GetComponent<Button>());
+        CharacterBtns[CharacterBtns.Count-1].onClick.AddListener(delegate { SelectCharacter("youngman"); });
+        CharacterBtns.Add(GameObject.Find("manBtn").GetComponent<Button>());
+        CharacterBtns[CharacterBtns.Count - 1].onClick.AddListener(delegate { SelectCharacter("man"); });
+    }
+
+    public void SelectCharacter(string character)
+    {
+        selectCharacter = character;
+        foreach(var c in CharacterBtns)
+        {
+            if(c.name != character + "Btn")
+            {
+                c.interactable = true;
+                c.transform.GetChild(2).gameObject.SetActive(false);
+            }
+            else
+            {
+                c.interactable = false;
+                c.transform.GetChild(2).gameObject.SetActive(true);
+            }
+        }
     }
 
     void CreatTicket(bool fromPlayer, float x, float y)
@@ -193,7 +227,7 @@ public class MainGame : MonoBehaviour
                 var LoginData = JsonUtility.FromJson<LoginMessage>(msg.Data);
                 foreach (var player in LoginData.Players)
                 {
-                    CreatPlayer(player.Name, "man", player.X, player.Y, player.Turn);
+                    CreatPlayer(player.Name, player.Character, player.X, player.Y, player.Turn);
                 }
                 //Debug.Log("Login");
                 break;
@@ -203,7 +237,7 @@ public class MainGame : MonoBehaviour
                 break;
             case Message.Join:
                 var JoinData = JsonUtility.FromJson<JoinMessage>(msg.Data);
-                CreatPlayer(JoinData.Data.Name, "man", JoinData.Data.X, JoinData.Data.Y, JoinData.Data.Turn);
+                CreatPlayer(JoinData.Data.Name, JoinData.Data.Character, JoinData.Data.X, JoinData.Data.Y, JoinData.Data.Turn);
                 //Debug.Log(JoinData.Data.Name + " Join");
                 break;
             case Message.Act:
@@ -323,6 +357,7 @@ public struct PlayerData
     public float X;
     public float Y;
     public bool Turn;
+    public string Character;
 }
 
 [Serializable]

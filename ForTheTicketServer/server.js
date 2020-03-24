@@ -32,15 +32,16 @@ class Server{
                 p(`${detailData.Data.Name} Login `)
                 p(this.clients.indexOf(ws))
                 this.clients[this.clients.indexOf(ws)].Name =  detailData.Data.Name
+                this.clients[this.clients.indexOf(ws)].Character =  detailData.Data.Character
                 
                 var userList=[]
                 for(let c of this.clients){
                     var usersData={}
                     usersData.Name = c.Name
                     usersData.X = c.X
-                    p(c.X)
                     usersData.Y = c.Y
                     usersData.Turn = c.Turn
+                    usersData.Character = c.Character
                     userList.push(usersData)
                 }
                 
