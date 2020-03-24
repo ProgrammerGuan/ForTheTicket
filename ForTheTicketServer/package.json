@@ -1,0 +1,17 @@
+{
+  "name": "server",
+  "version": "0.0.0",
+  "description": "socket server",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "jest",
+    "test_watch": "jest --watch"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "jest": "^25.1.0",
+    "ws": "^7.2.1"
+  }
+}

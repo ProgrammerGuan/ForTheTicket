@@ -16,6 +16,7 @@ public class MainGame : MonoBehaviour
     WsClient client;
     Stack<Message> messages = new Stack<Message>();
     bool sendIdle = false;
+    bool updateIdle = false;
     // Start is called before the first frame update
     private void Awake()
     {
@@ -43,21 +44,36 @@ public class MainGame : MonoBehaviour
             if (ctrl != ControlOrder.None)
             {
                 if (!sendIdle) sendIdle = true;
-
-                if (ctrl == ControlOrder.Kick)
+                if (ctrl!=ControlOrder.Idle)
                 {
-
+                    updateIdle = true;
+                    var actMessage = new PlayerActionMessage();
+                    var act = new PlayerAction();
+                    act.Name = myName;
+                    act.Control = ctrl;
+                    act.X = PlayerList[myName].transform.position.x;
+                    act.Y = PlayerList[myName].transform.position.y;
+                    act.Turn = PlayerList[myName].TurnFlag;
+                    actMessage.Data = act;
+                    Send(Message.Act, actMessage);
+                    myPos = PlayerList[myName].transform.position;
                 }
-                var actMessage = new PlayerActionMessage();
-                var act = new PlayerAction();
-                act.Name = myName;
-                act.Control = ctrl;
-                act.X = PlayerList[myName].transform.position.x;
-                act.Y = PlayerList[myName].transform.position.y;
-                act.Turn = PlayerList[myName].TurnFlag;
-                actMessage.Data = act;
-                Send(Message.Act, actMessage);
-                myPos = PlayerList[myName].transform.position;
+                else if (updateIdle)
+                {
+                    updateIdle = false;
+                    var actMessage = new PlayerActionMessage();
+                    var act = new PlayerAction();
+                    act.Name = myName;
+                    act.Control = ctrl;
+                    Debug.Log(ctrl);
+                    act.X = PlayerList[myName].transform.position.x;
+                    act.Y = PlayerList[myName].transform.position.y;
+                    act.Turn = PlayerList[myName].TurnFlag;
+                    actMessage.Data = act;
+                    Send(Message.Act, actMessage);
+                    myPos = PlayerList[myName].transform.position;
+                }
+                
             }
             else if (sendIdle)
             {

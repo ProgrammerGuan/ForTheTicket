@@ -6,7 +6,7 @@ public class Character
 {
     MainGame MainGame;
     GameObject myGameObject;
-    Animator Animator;
+    public Animator Animator;
     CharacterDetector Detector;
     GameObject AttackRange;
     string Name;
