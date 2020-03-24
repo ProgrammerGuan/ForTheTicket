@@ -14,11 +14,30 @@ public class CharacterDetector : MonoBehaviour
     {
         myName = name;
     }
-    private void OnCollisionEnter(Collision collision)
+
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "AttackCollision")
+        var usefulDamage = Time.time - Parameters.DamageTime > Parameters.DamageCoolDownTime;
+        if (collision.tag == "AttackCollision" && usefulDamage)
         {
-            MainGame.MineGotDamage(myName);
+            var damageForward = true;
+            Debug.Log(myName + " GetDamage");
+            if (collision.transform.position.x > gameObject.transform.position.x)
+                damageForward = true;
+            else
+                damageForward = false;
+            MainGame.MineGotDamage(myName,damageForward);
         }
+        else if (collision.gameObject.name == "Ticket")
+        {
+            MainGame.GetTicket(myName);
+            Destroy(collision.gameObject);
+            Debug.Log("GotTicket");
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        
     }
 }

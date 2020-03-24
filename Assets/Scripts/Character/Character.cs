@@ -11,6 +11,7 @@ public class Character
     GameObject AttackRange;
     string Name;
     public bool TurnFlag;
+    private bool HavingTicket;
     public Character(MainGame mainGame,string name)
     {
         Name = name;
@@ -21,6 +22,7 @@ public class Character
         MainGame = mainGame;
         AttackRange = myGameObject.transform.GetChild(0).gameObject;
         AttackRange.SetActive(false);
+        HavingTicket = false;
     }
     public Transform transform => myGameObject.transform;
 
@@ -133,10 +135,20 @@ public class Character
         Animator.SetBool(action, false);
     }
 
-    public void GotDamage()
+    public void GotDamage(bool GotDamageForward)
     {
+        //Right side got damage
+        if (GotDamageForward) Turn("right");
+        else Turn("left");  // Left side got damage
         SetAnimation("GotDamage");
         Animator.SetTrigger("GotDamage");
+        if (GotDamageForward) myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.left * 4;
+        else myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.right * 4;
+        if (HavingTicket)
+        {
+            MainGame.FallTicket(Name,myGameObject.transform.position.x, myGameObject.transform.position.y + 1);
+            HaveTicket(false);
+        }
     }
 
     private IEnumerator SetKickRange()
@@ -145,6 +157,12 @@ public class Character
         AttackRange.SetActive(true);
         yield return new WaitForSeconds(0.8f);
         AttackRange.SetActive(false);
+    }
+
+    public void HaveTicket(bool have)
+    {
+        HavingTicket = have;
+        myGameObject.transform.GetChild(1).gameObject.SetActive(HavingTicket);
     }
     
 }

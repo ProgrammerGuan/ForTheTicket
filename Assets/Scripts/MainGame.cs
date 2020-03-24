@@ -40,9 +40,14 @@ public class MainGame : MonoBehaviour
         {
             var ctrl = Controller.GetControl();
             PlayerList[myName].Action(ctrl);
-            if (myPos != PlayerList[myName].transform.position)
+            if (ctrl != ControlOrder.None)
             {
                 if (!sendIdle) sendIdle = true;
+
+                if (ctrl == ControlOrder.Kick)
+                {
+
+                }
                 var actMessage = new PlayerActionMessage();
                 var act = new PlayerAction();
                 act.Name = myName;
@@ -85,11 +90,12 @@ public class MainGame : MonoBehaviour
         
     }
 
-    public void MineGotDamage(string playerName)
+    public void MineGotDamage(string playerName, bool DamageForward)
     {
         var message = new PlayerGotDamageMessage();
         var data = new PlayerGotDamageData();
-        data.Name = myName;
+        data.Name = playerName;
+        data.GotDamageForward = DamageForward;
         message.Data = data;
         Send(Message.GotDamage,message);
     }
@@ -98,6 +104,7 @@ public class MainGame : MonoBehaviour
     {
         var newplayer = Instantiate(Resources.Load(string.Format("Prefabs/man", characterName)), new Vector3(x,y,0), Quaternion.identity);
         newplayer.name = playerName;
+        GameObject.Find(newplayer.name).GetComponent<CharacterDetector>().SetMyName(newplayer.name);
         var Character = new Character(this,playerName);
         PlayerList.Add(playerName, Character);
         var name_ui = Instantiate((GameObject)Resources.Load("Prefabs/PlayerName", typeof(GameObject)));
@@ -120,7 +127,35 @@ public class MainGame : MonoBehaviour
         data.Data = Data;
         Send(Message.Login, data);
     }
-    
+
+    void CreatTicket(bool fromPlayer, float x, float y)
+    {
+        var ticket = Instantiate(Resources.Load("Prefabs/Ticket"), new Vector3(x, y, 0), Quaternion.identity);
+        ticket.name = "Ticket";
+        if (fromPlayer) GameObject.Find("Ticket").GetComponent<Rigidbody2D>().velocity = Vector3.up * 6;
+    }
+
+    public void FallTicket(string playerName,float x,float y)
+    {
+        if (playerName != myName) return;
+        var creatTicketMessage = new BronTicketMessage();
+        var creatTicketData = new BornTicketData();
+        creatTicketData.FromPlayer = true;
+        creatTicketData.X = x;
+        creatTicketData.Y = y;
+        creatTicketMessage.Data = creatTicketData;
+        Send(Message.BornTicket, creatTicketMessage);
+    }
+
+    public void GetTicket(string name)
+    {
+        var getTicketMessage = new GetTicketMessage();
+        var getTicketData = new GetTicketData();
+        getTicketData.Name = name;
+        getTicketMessage.Data = getTicketData;
+        Send(Message.GetTicket, getTicketMessage);
+    }
+
     void onMessage(Message msg)
     {
         messages.Push(msg);
@@ -146,19 +181,36 @@ public class MainGame : MonoBehaviour
                 }
                 //Debug.Log("Login");
                 break;
+            case Message.FirstTicket:
+                var firstTicketData = JsonUtility.FromJson<FirstTicketMessage>(msg.Data);
+                CreatTicket(false, firstTicketData.TicketData.X, firstTicketData.TicketData.Y);
+                break;
             case Message.Join:
                 var JoinData = JsonUtility.FromJson<JoinMessage>(msg.Data);
                 CreatPlayer(JoinData.Data.Name, "man", JoinData.Data.X, JoinData.Data.Y, JoinData.Data.Turn);
-                //CreatPlayer(JoinData.Data.Name, "man", JoinData.Data.X, JoinData.Data.Y,JoinData.Data.Turn);
                 //Debug.Log(JoinData.Data.Name + " Join");
                 break;
             case Message.Act:
                 var ActData = JsonUtility.FromJson<PlayerActionMessage>(msg.Data);
-                PlayerList[ActData.Data.Name].Action(ActData.Data.Control);
+                if(PlayerList.ContainsKey(ActData.Data.Name))
+                    PlayerList[ActData.Data.Name].Action(ActData.Data.Control);
                 break;
             case Message.GotDamage:
                 var DamageData = JsonUtility.FromJson<PlayerGotDamageMessage>(msg.Data);
-                PlayerList[DamageData.Data.Name].GotDamage();
+                PlayerList[DamageData.Data.Name].GotDamage(DamageData.Data.GotDamageForward);
+                Debug.Log(DamageData.Data.Name + " Got damage in MainGame");
+                break;
+            case Message.BornTicket:
+                var BornTicketData = JsonUtility.FromJson<BronTicketMessage>(msg.Data);
+                CreatTicket(BornTicketData.Data.FromPlayer, BornTicketData.Data.X, BornTicketData.Data.Y);
+                break;
+            case Message.GetTicket:
+                var GetTicketData = JsonUtility.FromJson<GetTicketMessage>(msg.Data);
+                PlayerList[GetTicketData.Data.Name].HaveTicket(true); 
+                break;
+            case Message.Exit:
+                var ExitMessage = JsonUtility.FromJson<ExitMessage>(msg.Data);
+                PlayerList.Remove(ExitMessage.Data.Name);
                 break;
             //case Message.Move:
             //    var MoveData = JsonUtility.FromJson<PlayerData>(msg.Data);
@@ -175,6 +227,8 @@ public class MainGame : MonoBehaviour
         }
         
     }
+
+    
 
     //void UpdateMyself()
     //{
@@ -203,6 +257,10 @@ public partial struct Message
     public const string Act = "Act";
     public const string Join = "Join";
     public const string GotDamage = "GotDamage";
+    public const string BornTicket = "BornTicket";
+    public const string GetTicket = "GetTicket";
+    public const string Exit = "Exit";
+    public const string FirstTicket = "FirstTicket";
 }
 
 [Serializable]
@@ -239,6 +297,7 @@ class PlayerGotDamageMessage
 class PlayerGotDamageData
 {
     public string Name;
+    public bool GotDamageForward;
 }
 
 [Serializable]
@@ -258,4 +317,55 @@ public struct PlayerAction
     public float X;
     public float Y;
     public bool Turn;
+}
+
+[Serializable]
+class ExitMessage
+{
+    public ExitData Data;
+}
+
+[Serializable]
+public struct ExitData
+{
+    public string Name;
+}
+
+[Serializable]
+class FirstTicketMessage
+{
+    public FirstTicketData TicketData;
+}
+
+[Serializable]
+public struct FirstTicketData
+{
+    public float X;
+    public float Y;
+}
+
+[Serializable]
+class BronTicketMessage
+{
+    public BornTicketData Data;
+}
+
+[Serializable]
+public struct BornTicketData
+{
+    public float X;
+    public float Y;
+    public bool FromPlayer;
+}
+
+[Serializable]
+class GetTicketMessage
+{
+    public GetTicketData Data;
+}
+
+[Serializable]
+class GetTicketData
+{
+    public string Name;
 }

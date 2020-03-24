@@ -39,7 +39,7 @@ public class CharacterController
             case "jump":
                 return Time.time - Parameters.JumpTime > Parameters.JumpCoolDownTime;
             case "action":
-                return Time.time - Parameters.ActionTime > Parameters.KickCoolDownTime;
+                return Time.time - Parameters.ActionTime > Parameters.KickCoolDownTime && Time.time - Parameters.DamageTime > Parameters.DamageCoolDownTime;
             default:
                 return false;
         }
