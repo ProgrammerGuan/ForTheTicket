@@ -64,6 +64,7 @@
     <Compile Include="Assets\Scripts\Character\CharacterController.cs" />
     <Compile Include="Assets\Scripts\Character\CharacterDetector.cs" />
     <Compile Include="Assets\Scripts\Character\Parameters.cs" />
+    <Compile Include="Assets\Scripts\GameUI.cs" />
     <Compile Include="Assets\Scripts\MainGame.cs" />
     <Compile Include="Assets\Scripts\WsClient.cs" />
     <None Include="Assets\FreeAssets\kenney_tooncharacters1\Male adventurer\Tilesheet\character_maleAdventurer_sheetHD.xml" />

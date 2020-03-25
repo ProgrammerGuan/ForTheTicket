@@ -7,30 +7,22 @@ public class MainGame : MonoBehaviour
 {
     public GameObject prefab;
     CharacterController Controller;
+    GameUI gameUi;
     Dictionary<string, Character> PlayerList;
     Vector3 myPos;
-    List<GameObject> PlayerNames;
-    Button LoginButton;
-    List<Button> CharacterBtns;
     string myName;
     bool startGameFlag;
     WsClient client;
     Stack<Message> messages = new Stack<Message>();
     bool sendIdle = false;
     bool updateIdle = false;
-    string selectCharacter;
-    // Start is called before the first frame update
+
     private void Awake()
     {
-        PlayerNames = new List<GameObject>();
         Controller = new CharacterController();
         PlayerList = new Dictionary<string, Character>();
-        LoginButton = GameObject.Find("LoginButton").GetComponent<Button>();
-        LoginButton.onClick.AddListener(Login);
-        CharacterBtns = new List<Button>();
-        InitialCharacterBtns();
+        gameUi = new GameUI(this);
         startGameFlag = false;
-        selectCharacter = "youngman";
     }
 
     void Start()
@@ -97,17 +89,12 @@ public class MainGame : MonoBehaviour
             }
 
         }
-        foreach (var name_ui in PlayerNames)
-        {
-            name_ui.transform.position = RectTransformUtility.WorldToScreenPoint(Camera.main, PlayerList[name_ui.GetComponent<Text>().text].transform.position + Vector3.up * 0.5f);
-        }
+        gameUi.UpdatePlayerNameLocation(PlayerList);
         if (messages.Count > 0)
         {
             var msg = messages.Pop();
             UpdateMessage(msg);
         }
-        //if (startGameFlag)
-        //    UpdateMyself();
         
     }
 
@@ -128,18 +115,15 @@ public class MainGame : MonoBehaviour
         GameObject.Find(newplayer.name).GetComponent<CharacterDetector>().SetMyName(newplayer.name);
         var Character = new Character(this,playerName);
         PlayerList.Add(playerName, Character);
+        Character.HaveTicket(havingTicket);
         var name_ui = Instantiate((GameObject)Resources.Load("Prefabs/PlayerName", typeof(GameObject)));
         name_ui.GetComponent<Text>().text = playerName;
         name_ui.transform.parent = GameObject.Find("Canvas").transform;
-        PlayerNames.Add(name_ui);
-    }
+        gameUi.AddPlayerName(name_ui);    }
 
-    public void Login()
+    public void Login(string name,string character)
     {
-        LoginButton.interactable = GameObject.Find("NameInput").GetComponent<InputField>().interactable = false;
-        foreach (var c in CharacterBtns) c.gameObject.SetActive(false);
-        GameObject.Find("SelectCharacterText").SetActive(false);
-        myName = GameObject.Find("NameInput").transform.GetChild(2).GetComponent<Text>().text;
+        myName = name;
         startGameFlag = true;
         var data = new JoinMessage();
         var Data = new PlayerData();
@@ -147,35 +131,9 @@ public class MainGame : MonoBehaviour
         Data.X = 0;
         Data.Y = 0;
         Data.Turn = false;
-        Data.Character = selectCharacter;
+        Data.Character = character;
         data.Data = Data;
         Send(Message.Login, data);
-    }
-
-    void InitialCharacterBtns()
-    {
-        CharacterBtns.Add(GameObject.Find("youngmanBtn").GetComponent<Button>());
-        CharacterBtns[CharacterBtns.Count-1].onClick.AddListener(delegate { SelectCharacter("youngman"); });
-        CharacterBtns.Add(GameObject.Find("manBtn").GetComponent<Button>());
-        CharacterBtns[CharacterBtns.Count - 1].onClick.AddListener(delegate { SelectCharacter("man"); });
-    }
-
-    public void SelectCharacter(string character)
-    {
-        selectCharacter = character;
-        foreach(var c in CharacterBtns)
-        {
-            if(c.name != character + "Btn")
-            {
-                c.interactable = true;
-                c.transform.GetChild(2).gameObject.SetActive(false);
-            }
-            else
-            {
-                c.interactable = false;
-                c.transform.GetChild(2).gameObject.SetActive(true);
-            }
-        }
     }
 
     void CreatTicket(bool fromPlayer, float x, float y)
@@ -262,14 +220,6 @@ public class MainGame : MonoBehaviour
                 var ExitMessage = JsonUtility.FromJson<ExitMessage>(msg.Data);
                 PlayerList.Remove(ExitMessage.Data.Name);
                 break;
-            //case Message.Move:
-            //    var MoveData = JsonUtility.FromJson<PlayerData>(msg.Data);
-            //    PlayerList[MoveData.Name].transform.position = new Vector3(MoveData.X, MoveData.Y, 0);
-            //    if (!MoveData.Turn)
-            //        PlayerList[MoveData.Name].transform.eulerAngles = new Vector3(0, 0, 0);
-            //    else PlayerList[MoveData.Name].transform.eulerAngles = new Vector3(0, -180, 0);
-            //    Debug.Log(MoveData.Name + "Moving");
-            //    break;
             default:
                 Debug.Log("unknowed msg");
                 Debug.Log(msg.Type);
@@ -277,26 +227,6 @@ public class MainGame : MonoBehaviour
         }
         
     }
-
-    
-
-    //void UpdateMyself()
-    //{
-    //    if (PlayerList.Count < 1) return;
-    //    if (myPos != PlayerList[myName].transform.position)
-    //    {
-    //        var data = new UpdateMyselfMessage();
-    //        var Data = new PlayerData();
-    //        Data.Name = myName;
-    //        Data.X = PlayerList[myName].transform.position.x;
-    //        Data.Y = PlayerList[myName].transform.position.y;
-    //        Data.Turn = PlayerList[myName].TurnFlag;
-    //        data.Data = Data;
-    //        Send(Message.Move, data);
-    //        myPos = PlayerList[myName].transform.position;
-    //    }
-
-    //}
 
 }
 
