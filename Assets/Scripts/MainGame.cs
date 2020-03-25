@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using UnityEngine;
 //using UnityEngine.UI;
 public class MainGame : MonoBehaviour
@@ -27,7 +28,12 @@ public class MainGame : MonoBehaviour
 
     void Start()
     {
-        client = new WsClient("ws://192.168.8.53:4000");
+        //192.168.8.53 クァンのIP
+        string hostname = Dns.GetHostName();
+        IPAddress[] adrList = Dns.GetHostAddresses(hostname);
+        client = new WsClient("ws://" + adrList[1].ToString() + ":4000");
+        //client = new WsClient("ws://192.168.8.53:4000");
+
         client.OnMessage = onMessage;
     }
 

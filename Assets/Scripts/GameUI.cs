@@ -16,8 +16,8 @@ public class GameUI
         MainGame = game;
         LoginButton = GameObject.Find("LoginButton").GetComponent<Button>();
         LoginButton.onClick.AddListener(Login);
-        StartButton = GameObject.Find("StartBtn").GetComponent<Button>();
-        StartButton.onClick.AddListener(delegate {MainGame.StartGame(); });
+        //StartButton = GameObject.Find("StartBtn").GetComponent<Button>();
+        //StartButton.onClick.AddListener(delegate {MainGame.StartGame(); });
         TimeCount = GameObject.Find("TimeCount").GetComponent<Text>();
         CharacterBtns = new List<Button>();
         InitialCharacterBtns();
