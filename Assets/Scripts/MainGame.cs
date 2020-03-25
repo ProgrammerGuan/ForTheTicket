@@ -121,7 +121,7 @@ public class MainGame : MonoBehaviour
         Send(Message.GotDamage,message);
     }
 
-    public void CreatPlayer(string playerName,string characterName,float x,float y,bool Turn)
+    public void CreatPlayer(string playerName,string characterName,float x,float y,bool Turn,bool havingTicket)
     {
         var newplayer = Instantiate(Resources.Load(string.Format("Prefabs/{0}", characterName)), new Vector3(x,y,0), Quaternion.identity);
         newplayer.name = playerName;
@@ -227,7 +227,7 @@ public class MainGame : MonoBehaviour
                 var LoginData = JsonUtility.FromJson<LoginMessage>(msg.Data);
                 foreach (var player in LoginData.Players)
                 {
-                    CreatPlayer(player.Name, player.Character, player.X, player.Y, player.Turn);
+                    CreatPlayer(player.Name, player.Character, player.X, player.Y, player.Turn,player.HavingTicket);
                 }
                 //Debug.Log("Login");
                 break;
@@ -237,7 +237,7 @@ public class MainGame : MonoBehaviour
                 break;
             case Message.Join:
                 var JoinData = JsonUtility.FromJson<JoinMessage>(msg.Data);
-                CreatPlayer(JoinData.Data.Name, JoinData.Data.Character, JoinData.Data.X, JoinData.Data.Y, JoinData.Data.Turn);
+                CreatPlayer(JoinData.Data.Name, JoinData.Data.Character, JoinData.Data.X, JoinData.Data.Y, JoinData.Data.Turn,false);
                 //Debug.Log(JoinData.Data.Name + " Join");
                 break;
             case Message.Act:
@@ -358,6 +358,7 @@ public struct PlayerData
     public float Y;
     public bool Turn;
     public string Character;
+    public bool HavingTicket;
 }
 
 [Serializable]

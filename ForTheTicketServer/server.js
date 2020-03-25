@@ -33,7 +33,7 @@ class Server{
                 p(this.clients.indexOf(ws))
                 this.clients[this.clients.indexOf(ws)].Name =  detailData.Data.Name
                 this.clients[this.clients.indexOf(ws)].Character =  detailData.Data.Character
-                
+                this.clients[this.clients.indexOf(ws)].HavingTicket = false
                 var userList=[]
                 for(let c of this.clients){
                     var usersData={}
@@ -42,6 +42,7 @@ class Server{
                     usersData.Y = c.Y
                     usersData.Turn = c.Turn
                     usersData.Character = c.Character
+                    usersData.HavingTicket = c.HavingTicket
                     userList.push(usersData)
                 }
                 
@@ -89,6 +90,11 @@ class Server{
                 this.broadcast(ws,data)
                 break;
                 case 'GetTicket':
+                    this.GotFirstTicket = true;
+                    for(let c of this.clients){
+                        if(c.Name === detailData.Data.Name) c.HavingTicket = true
+                        else c.HavingTicket = false
+                    }
                     this.broadcast(ws,data)
                     break;
                 default:
