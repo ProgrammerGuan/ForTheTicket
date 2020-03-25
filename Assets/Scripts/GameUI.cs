@@ -6,7 +6,9 @@ public class GameUI
 {
     string selectCharacter;
     Button LoginButton;
+    Button StartButton;
     List<Button> CharacterBtns;
+    Text TimeCount;
     MainGame MainGame;
     List<GameObject> PlayerNames;
     public GameUI(MainGame game)
@@ -14,6 +16,9 @@ public class GameUI
         MainGame = game;
         LoginButton = GameObject.Find("LoginButton").GetComponent<Button>();
         LoginButton.onClick.AddListener(Login);
+        StartButton = GameObject.Find("StartBtn").GetComponent<Button>();
+        StartButton.onClick.AddListener(delegate {MainGame.StartGame(); });
+        TimeCount = GameObject.Find("TimeCount").GetComponent<Text>();
         CharacterBtns = new List<Button>();
         InitialCharacterBtns();
         PlayerNames = new List<GameObject>();
@@ -54,8 +59,11 @@ public class GameUI
         }
     }
 
-    public void AddPlayerName(GameObject name_ui)
+    public void AddPlayerName(string playerName)
     {
+        var name_ui = MainGame.Instantiate((GameObject)Resources.Load("Prefabs/PlayerName", typeof(GameObject)));
+        name_ui.GetComponent<Text>().text = playerName;
+        name_ui.transform.parent = GameObject.Find("Canvas").transform;
         PlayerNames.Add(name_ui);
     }
 
@@ -65,5 +73,10 @@ public class GameUI
         {
             name_ui.transform.position = RectTransformUtility.WorldToScreenPoint(Camera.main, playerList[name_ui.GetComponent<Text>().text].transform.position + Vector3.up * 0.5f);
         }
+    }
+
+    public void StartGame()
+    {
+        
     }
 }

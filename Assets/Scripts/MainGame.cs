@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+//using UnityEngine.UI;
 public class MainGame : MonoBehaviour
 {
     public GameObject prefab;
@@ -116,10 +116,8 @@ public class MainGame : MonoBehaviour
         var Character = new Character(this,playerName);
         PlayerList.Add(playerName, Character);
         Character.HaveTicket(havingTicket);
-        var name_ui = Instantiate((GameObject)Resources.Load("Prefabs/PlayerName", typeof(GameObject)));
-        name_ui.GetComponent<Text>().text = playerName;
-        name_ui.transform.parent = GameObject.Find("Canvas").transform;
-        gameUi.AddPlayerName(name_ui);    }
+        gameUi.AddPlayerName(playerName);
+    }
 
     public void Login(string name,string character)
     {
@@ -134,6 +132,25 @@ public class MainGame : MonoBehaviour
         Data.Character = character;
         data.Data = Data;
         Send(Message.Login, data);
+    }
+
+    public void StartGame()
+    {
+        Send(Message.StartGame, null);
+    }
+
+    public void GameSetting(GameSettingMessage message)
+    {
+        foreach(var pD in message.Data.PlayerData)
+        {
+            var c = PlayerList[pD.Name];
+            c.transform.position.Set(pD.X, pD.Y, 0);
+            if (pD.Turn) c.Turn("left");
+            else c.Turn("right");
+            c.HaveTicket(pD.HavingTicket);
+        }
+        CreatTicket(message.Data.TicketData.FromPlayer, message.Data.TicketData.X, message.Data.TicketData.Y);
+        gameUi.StartGame();
     }
 
     void CreatTicket(bool fromPlayer, float x, float y)
@@ -220,6 +237,10 @@ public class MainGame : MonoBehaviour
                 var ExitMessage = JsonUtility.FromJson<ExitMessage>(msg.Data);
                 PlayerList.Remove(ExitMessage.Data.Name);
                 break;
+            case Message.StartGame:
+                var StartGameMessage = JsonUtility.FromJson<GameSettingMessage>(msg.Data);
+                GameSetting(StartGameMessage);
+                break;
             default:
                 Debug.Log("unknowed msg");
                 Debug.Log(msg.Type);
@@ -241,6 +262,7 @@ public partial struct Message
     public const string GetTicket = "GetTicket";
     public const string Exit = "Exit";
     public const string FirstTicket = "FirstTicket";
+    public const string StartGame = "StartGame";
 }
 
 [Serializable]
@@ -347,7 +369,20 @@ class GetTicketMessage
 }
 
 [Serializable]
-class GetTicketData
+public struct GetTicketData
 {
     public string Name;
+}
+
+[Serializable]
+public class GameSettingMessage
+{
+    public GameSettingData Data;
+}
+
+[Serializable]
+public struct GameSettingData
+{
+    public List<PlayerData>PlayerData;
+    public BornTicketData TicketData;
 }

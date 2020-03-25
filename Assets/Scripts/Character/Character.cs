@@ -112,7 +112,7 @@ public class Character
         }
     }
 
-    private void Turn(string turnTo)
+    public void Turn(string turnTo)
     {
         switch (turnTo)
         {

@@ -6,6 +6,8 @@ public class CharacterDetector : MonoBehaviour
 {
     MainGame MainGame;
     string myName;
+    float DamageTime;
+
     private void Awake()
     {
         MainGame = GameObject.FindGameObjectWithTag("MainGameManager").GetComponent<MainGame>();
@@ -17,7 +19,7 @@ public class CharacterDetector : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        var usefulDamage = Time.time - Parameters.DamageTime > Parameters.DamageCoolDownTime;
+        var usefulDamage = Time.time > DamageTime;
         if (collision.tag == "AttackCollision" && usefulDamage)
         {
             var damageForward = true;
@@ -26,6 +28,7 @@ public class CharacterDetector : MonoBehaviour
                 damageForward = true;
             else
                 damageForward = false;
+            DamageTime = Time.time + Parameters.DamageCoolDownTime;
             MainGame.MineGotDamage(myName,damageForward);
         }
         else if (collision.gameObject.name == "Ticket")
