@@ -8,21 +8,31 @@ public class GameUI
     Button LoginButton;
     Button StartButton;
     List<Button> CharacterBtns;
+    Button ExitWinMessageBtn;
+    GameObject WinnerMessage;
     Text TimeCount;
     MainGame MainGame;
-    List<GameObject> PlayerNames;
+    Dictionary<string,GameObject> PlayerNames;
+    float totaltime;
+    int min, second;
     public GameUI(MainGame game)
     {
         MainGame = game;
         LoginButton = GameObject.Find("LoginButton").GetComponent<Button>();
         LoginButton.onClick.AddListener(Login);
-        //StartButton = GameObject.Find("StartBtn").GetComponent<Button>();
-        //StartButton.onClick.AddListener(delegate {MainGame.StartGame(); });
+        StartButton = GameObject.Find("StartBtn").GetComponent<Button>();
+        StartButton.onClick.AddListener(delegate { MainGame.StartGame(); });
         TimeCount = GameObject.Find("TimeCount").GetComponent<Text>();
+        TimeCount.gameObject.SetActive(false);
+        ExitWinMessageBtn = GameObject.Find("ExitButton").GetComponent<Button>();
+        ExitWinMessageBtn.onClick.AddListener(delegate { ExitWinMessage(); });
+        WinnerMessage = GameObject.Find("WinnerMessage");
+        WinnerMessage.SetActive(false);
         CharacterBtns = new List<Button>();
         InitialCharacterBtns();
-        PlayerNames = new List<GameObject>();
+        PlayerNames = new Dictionary<string, GameObject>();
         selectCharacter = "youngman";
+        totaltime = 300;
     }
     void Login()
     {
@@ -64,19 +74,58 @@ public class GameUI
         var name_ui = MainGame.Instantiate((GameObject)Resources.Load("Prefabs/PlayerName", typeof(GameObject)));
         name_ui.GetComponent<Text>().text = playerName;
         name_ui.transform.parent = GameObject.Find("Canvas").transform;
-        PlayerNames.Add(name_ui);
+        name_ui.transform.SetAsFirstSibling();
+        PlayerNames.Add(playerName,name_ui);
+    }
+
+    public void RemovePlayerName(string playerName)
+    {
+        MainGame.Destroy(PlayerNames[playerName]);
+        PlayerNames.Remove(playerName);
     }
 
     public void UpdatePlayerNameLocation(Dictionary<string, Character> playerList)
     {
         foreach (var name_ui in PlayerNames)
         {
-            name_ui.transform.position = RectTransformUtility.WorldToScreenPoint(Camera.main, playerList[name_ui.GetComponent<Text>().text].transform.position + Vector3.up * 0.5f);
+            name_ui.Value.transform.position = RectTransformUtility.WorldToScreenPoint(Camera.main, playerList[name_ui.Key].transform.position + Vector3.up * 0.5f);
         }
     }
 
-    public void StartGame()
+    public void StartGame(int remainingTime)
     {
+        StartButton.gameObject.SetActive(false);
+        TimeCount.gameObject.SetActive(true);
+        ExitWinMessage();
+        totaltime = remainingTime;
+    }
+
+    public void GameEnd(string winnerName, string characterName)
+    {
+        StartButton.gameObject.SetActive(true);
+        TimeCount.gameObject.SetActive(false);
+        WinnerMessage.SetActive(true);
         
+        GameObject.Find("NameText").GetComponent<Text>().text = winnerName;
+        var showPlayer = MainGame.Instantiate(Resources.Load(string.Format("Prefabs/{0}", characterName+"cheer")), new Vector3(0, 0, 0), Quaternion.identity);
+        showPlayer.name = "winnerModel";
+        GameObject.Find(showPlayer.name).transform.SetParent(GameObject.Find("Winner").transform);
+        GameObject.Find(showPlayer.name).transform.localPosition = Vector3.zero;
+    }
+
+    public void UpdateTime()
+    {
+        totaltime -= Time.deltaTime;
+        min = (int)totaltime / 60;
+        second = (int)totaltime % 60;
+        if(second<10) TimeCount.text = min.ToString() + ":0" + second.ToString();
+        else TimeCount.text = min.ToString() + ":" + second.ToString();
+    }
+
+    public void ExitWinMessage()
+    {
+        WinnerMessage.SetActive(false);
+        if(GameObject.Find("Winner").transform.childCount>0)
+            MainGame.Destroy(GameObject.Find("winnerModel"));
     }
 }

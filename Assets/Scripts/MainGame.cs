@@ -12,6 +12,7 @@ public class MainGame : MonoBehaviour
     Dictionary<string, Character> PlayerList;
     Vector3 myPos;
     string myName;
+    bool Logined;
     bool startGameFlag;
     WsClient client;
     Stack<Message> messages = new Stack<Message>();
@@ -24,15 +25,17 @@ public class MainGame : MonoBehaviour
         PlayerList = new Dictionary<string, Character>();
         gameUi = new GameUI(this);
         startGameFlag = false;
+        Logined = false;
     }
 
     void Start()
     {
         //192.168.8.53 クァンのIP
-        string hostname = Dns.GetHostName();
-        IPAddress[] adrList = Dns.GetHostAddresses(hostname);
-        client = new WsClient("ws://" + adrList[1].ToString() + ":4000");
-        //client = new WsClient("ws://192.168.8.53:4000");
+        client = new WsClient("ws://192.168.8.53:4000");
+
+        //string hostname = Dns.GetHostName();
+        //IPAddress[] adrList = Dns.GetHostAddresses(hostname);
+        //client = new WsClient("ws://" + adrList[1].ToString() + ":4000");
 
         client.OnMessage = onMessage;
     }
@@ -99,9 +102,9 @@ public class MainGame : MonoBehaviour
         if (messages.Count > 0)
         {
             var msg = messages.Pop();
-            UpdateMessage(msg);
+            if(Logined) UpdateMessage(msg);
         }
-        
+        if (startGameFlag) gameUi.UpdateTime();
     }
 
     public void MineGotDamage(string playerName, bool DamageForward)
@@ -119,7 +122,7 @@ public class MainGame : MonoBehaviour
         var newplayer = Instantiate(Resources.Load(string.Format("Prefabs/{0}", characterName)), new Vector3(x,y,0), Quaternion.identity);
         newplayer.name = playerName;
         GameObject.Find(newplayer.name).GetComponent<CharacterDetector>().SetMyName(newplayer.name);
-        var Character = new Character(this,playerName);
+        var Character = new Character(this,playerName,characterName);
         PlayerList.Add(playerName, Character);
         Character.HaveTicket(havingTicket);
         gameUi.AddPlayerName(playerName);
@@ -127,8 +130,8 @@ public class MainGame : MonoBehaviour
 
     public void Login(string name,string character)
     {
+        Logined = true;
         myName = name;
-        startGameFlag = true;
         var data = new JoinMessage();
         var Data = new PlayerData();
         Data.Name = myName;
@@ -147,23 +150,35 @@ public class MainGame : MonoBehaviour
 
     public void GameSetting(GameSettingMessage message)
     {
-        foreach(var pD in message.Data.PlayerData)
+        startGameFlag = true;
+        foreach (var pD in message.Data.PlayerData)
         {
             var c = PlayerList[pD.Name];
-            c.transform.position.Set(pD.X, pD.Y, 0);
+            //Debug.Log(pD.Name + " ori position X : " + c.transform.position.x);
+            //Debug.Log(pD.Name + " new position X : " + pD.X);
+            c.transform.position = new Vector3(pD.X, pD.Y, 0);
             if (pD.Turn) c.Turn("left");
             else c.Turn("right");
             c.HaveTicket(pD.HavingTicket);
         }
+        Destroy(GameObject.Find("Ticket"));
         CreatTicket(message.Data.TicketData.FromPlayer, message.Data.TicketData.X, message.Data.TicketData.Y);
-        gameUi.StartGame();
+        gameUi.StartGame(message.Data.RemainingTime);
+    }
+
+    public void GameEnd(string winnerName)
+    {
+        startGameFlag = false;
+        Debug.Log(winnerName + " win");
+        gameUi.GameEnd(winnerName,PlayerList[winnerName].CharacterName);
+        
     }
 
     void CreatTicket(bool fromPlayer, float x, float y)
     {
         var ticket = Instantiate(Resources.Load("Prefabs/Ticket"), new Vector3(x, y, 0), Quaternion.identity);
         ticket.name = "Ticket";
-        if (fromPlayer) GameObject.Find("Ticket").GetComponent<Rigidbody2D>().velocity = Vector3.up * 6;
+        if (fromPlayer) GameObject.Find("Ticket").GetComponent<Rigidbody2D>().velocity = Vector3.up * Parameters.FallTicketHeight;
     }
 
     public void FallTicket(string playerName,float x,float y)
@@ -204,11 +219,18 @@ public class MainGame : MonoBehaviour
         {
             case Message.Login:
                 var d = msg.Data;
-                Debug.Log(d.Length);
+                
+                //Debug.Log(d.Length);
                 var LoginData = JsonUtility.FromJson<LoginMessage>(msg.Data);
                 foreach (var player in LoginData.Players)
                 {
                     CreatPlayer(player.Name, player.Character, player.X, player.Y, player.Turn,player.HavingTicket);
+                }
+                Debug.Log(LoginData.remainingTime);
+                if (LoginData.remainingTime > 0)
+                {
+                    gameUi.StartGame(LoginData.remainingTime);
+                    startGameFlag = true;
                 }
                 //Debug.Log("Login");
                 break;
@@ -229,7 +251,7 @@ public class MainGame : MonoBehaviour
             case Message.GotDamage:
                 var DamageData = JsonUtility.FromJson<PlayerGotDamageMessage>(msg.Data);
                 PlayerList[DamageData.Data.Name].GotDamage(DamageData.Data.GotDamageForward);
-                Debug.Log(DamageData.Data.Name + " Got damage in MainGame");
+                //Debug.Log(DamageData.Data.Name + " Got damage in MainGame");
                 break;
             case Message.BornTicket:
                 var BornTicketData = JsonUtility.FromJson<BronTicketMessage>(msg.Data);
@@ -241,15 +263,22 @@ public class MainGame : MonoBehaviour
                 break;
             case Message.Exit:
                 var ExitMessage = JsonUtility.FromJson<ExitMessage>(msg.Data);
+                Debug.Log(ExitMessage.Data.Name);
+                Destroy(GameObject.Find(ExitMessage.Data.Name));
                 PlayerList.Remove(ExitMessage.Data.Name);
+                gameUi.RemovePlayerName(ExitMessage.Data.Name);
                 break;
             case Message.StartGame:
                 var StartGameMessage = JsonUtility.FromJson<GameSettingMessage>(msg.Data);
                 GameSetting(StartGameMessage);
                 break;
+            case Message.GameEnd:
+                var GameEndMessage = JsonUtility.FromJson<GameEndMessage>(msg.Data);
+                GameEnd(GameEndMessage.Data.WinnerName);
+                break;
             default:
-                Debug.Log("unknowed msg");
-                Debug.Log(msg.Type);
+                //Debug.Log("unknowed msg");
+                //Debug.Log(msg.Type);
                 break;
         }
         
@@ -269,6 +298,7 @@ public partial struct Message
     public const string Exit = "Exit";
     public const string FirstTicket = "FirstTicket";
     public const string StartGame = "StartGame";
+    public const string GameEnd = "GameEnd";
 }
 
 [Serializable]
@@ -281,12 +311,7 @@ class JoinMessage
 class LoginMessage
 {
     public List<PlayerData> Players;
-}
-
-[Serializable]
-class UpdateMyselfMessage
-{
-    public PlayerData Data;
+    public int remainingTime;
 }
 
 [Serializable]
@@ -391,4 +416,17 @@ public struct GameSettingData
 {
     public List<PlayerData>PlayerData;
     public BornTicketData TicketData;
+    public int RemainingTime;
+}
+
+[Serializable]
+public class GameEndMessage
+{
+    public GameEndData Data;
+}
+
+[Serializable]
+public struct GameEndData
+{
+    public string WinnerName;
 }

@@ -10,11 +10,13 @@ public class Character
     CharacterDetector Detector;
     GameObject AttackRange;
     string Name;
+    public string CharacterName;
     public bool TurnFlag;
     private bool HavingTicket;
-    public Character(MainGame mainGame,string name)
+    public Character(MainGame mainGame,string name,string characterName)
     {
         Name = name;
+        CharacterName = characterName;
         TurnFlag = false;
         myGameObject = GameObject.Find(Name);
         Animator = myGameObject.GetComponent<Animator>();
@@ -68,15 +70,15 @@ public class Character
         if (myGameObject.transform.eulerAngles == new Vector3(0, 0, 0))
         {
             if (Animator.GetBool("Walk") || Animator.GetBool("Jump"))
-                myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.right * 6;
-            else myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.right * 4;
+                myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.right * Parameters.JumpKickDistance;
+            else myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.right * Parameters.NormalKickDistance;
 
         }
         else
         {
             if (Animator.GetBool("Walk") || Animator.GetBool("Jump"))
-                myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.left * 6;
-            else myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.left * 4;
+                myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.left * Parameters.JumpKickDistance;
+            else myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.left * Parameters.NormalKickDistance;
         }
         MainGame.StartCoroutine(SetAction("Kick", Parameters.KickCoolDownTime-0.5f));
         MainGame.StartCoroutine(SetKickRange());
@@ -142,8 +144,8 @@ public class Character
         else Turn("left");  // Left side got damage
         SetAnimation("GotDamage");
         Animator.SetTrigger("GotDamage");
-        if (GotDamageForward) myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.left * 4;
-        else myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.right * 4;
+        if (GotDamageForward) myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.left * Parameters.GotDamageDistance;
+        else myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.right * Parameters.GotDamageDistance;
         if (HavingTicket)
         {
             MainGame.FallTicket(Name,myGameObject.transform.position.x, myGameObject.transform.position.y + 1);
@@ -164,5 +166,6 @@ public class Character
         HavingTicket = have;
         myGameObject.transform.GetChild(1).gameObject.SetActive(HavingTicket);
     }
-    
+   
+
 }

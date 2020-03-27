@@ -24,7 +24,7 @@ public class CharacterController
         if (Do("action"))
         {
             if (Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.K)) return ControlOrder.Kick;
-            else if (Input.GetKey(KeyCode.X) || Input.GetKey(KeyCode.J) && Do("jump")) return ControlOrder.Jump;
+            else if ( (Input.GetKey(KeyCode.X) || Input.GetKey(KeyCode.J)) && Do("jump")) return ControlOrder.Jump;
             else if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) return ControlOrder.moveLeft;
             else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) return ControlOrder.moveRight;
             else return ControlOrder.Idle;
