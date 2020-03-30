@@ -25,6 +25,7 @@ public class Character
         AttackRange = myGameObject.transform.GetChild(0).gameObject;
         AttackRange.SetActive(false);
         HavingTicket = false;
+
     }
     public Transform transform => myGameObject.transform;
 
@@ -62,7 +63,7 @@ public class Character
     {
         Parameters.JumpTime = Time.time;
         MainGame.StartCoroutine(SetAction("Jump", Parameters.JumpCoolDownTime - 0.5f));
-        myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.up*5;
+        myGameObject.GetComponent<Rigidbody2D>().AddForce(Vector2.up * Parameters.JumpHeight, ForceMode2D.Impulse);
     }
 
     private void Kick()

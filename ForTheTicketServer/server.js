@@ -223,6 +223,10 @@ class Server{
         }))
     }
     
+    sendPosition(){
+        
+    }
+
 }
 
 function p(message) {
