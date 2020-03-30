@@ -28,7 +28,7 @@ public class Character
     }
     public Transform transform => myGameObject.transform;
 
-    public void Action(ControlOrder control)
+    public void Action(ControlOrder control,float x,float y,bool fromServer)
     {
 
         switch (control)
@@ -36,12 +36,14 @@ public class Character
             case ControlOrder.moveLeft:
                 if (myGameObject.transform.eulerAngles != new Vector3(0, -180, 0))
                     Turn("left");
-                Move("left");
+                if(fromServer) Move(x,y);
+                else Move(-Parameters.MoveSpeed + myGameObject.transform.position.x, myGameObject.transform.position.y);
                 break;
             case ControlOrder.moveRight:
                 if (myGameObject.transform.eulerAngles != new Vector3(0, 0, 0))
                     Turn("right");
-                Move("right");
+                if(fromServer) Move(x,y);
+                else Move(Parameters.MoveSpeed + myGameObject.transform.position.x, myGameObject.transform.position.y);
                 break;
             case ControlOrder.Jump:
                 Jump();
@@ -56,11 +58,10 @@ public class Character
         
         
     }
-
     private void Jump()
     {
         Parameters.JumpTime = Time.time;
-        MainGame.StartCoroutine(SetAction("Jump",Parameters.JumpCoolDownTime));
+        MainGame.StartCoroutine(SetAction("Jump", Parameters.JumpCoolDownTime - 0.5f));
         myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.up*5;
     }
 
@@ -99,19 +100,11 @@ public class Character
             
     }
 
-    private void Move(string moveForward)
+    private void Move(float x, float y)
     {
         if (!Animator.GetBool("Jump"))
             SetAnimation("Walk");
-        switch (moveForward)
-        {
-            case "right":
-                myGameObject.transform.position += new Vector3(Parameters.MoveSpeed, 0, 0);
-                break;
-            case "left":
-                myGameObject.transform.position -= new Vector3(Parameters.MoveSpeed, 0, 0);
-                break;
-        }
+        myGameObject.transform.position = new Vector3(Mathf.Lerp(myGameObject.transform.position.x, x, 1f), Mathf.Lerp(myGameObject.transform.position.y, y, 1f), 0);
     }
 
     public void Turn(string turnTo)

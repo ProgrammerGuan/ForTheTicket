@@ -8,8 +8,11 @@ public class GameUI
     Button LoginButton;
     Button StartButton;
     List<Button> CharacterBtns;
-    Button ExitWinMessageBtn;
     GameObject WinnerMessage;
+    Button ExitWinMessageBtn;
+    GameObject LoginFailMessage;
+    Button ExitLoginFailBtn;
+    GameObject SelectCharacterText;
     Text TimeCount;
     MainGame MainGame;
     Dictionary<string,GameObject> PlayerNames;
@@ -20,14 +23,20 @@ public class GameUI
         MainGame = game;
         LoginButton = GameObject.Find("LoginButton").GetComponent<Button>();
         LoginButton.onClick.AddListener(Login);
+        ExitLoginFailBtn = GameObject.Find("ExitLoginFailButton").GetComponent<Button>();
+        ExitLoginFailBtn.onClick.AddListener(delegate { SetLoginFailMessage(false); });
+        LoginFailMessage = GameObject.Find("LoginFailMessage");
+        LoginFailMessage.SetActive(false);
         StartButton = GameObject.Find("StartBtn").GetComponent<Button>();
         StartButton.onClick.AddListener(delegate { MainGame.StartGame(); });
+        StartButton.gameObject.SetActive(false);
         TimeCount = GameObject.Find("TimeCount").GetComponent<Text>();
         TimeCount.gameObject.SetActive(false);
-        ExitWinMessageBtn = GameObject.Find("ExitButton").GetComponent<Button>();
+        ExitWinMessageBtn = GameObject.Find("ExitWinMessageButton").GetComponent<Button>();
         ExitWinMessageBtn.onClick.AddListener(delegate { ExitWinMessage(); });
         WinnerMessage = GameObject.Find("WinnerMessage");
         WinnerMessage.SetActive(false);
+        SelectCharacterText = GameObject.Find("SelectCharacterText");
         CharacterBtns = new List<Button>();
         InitialCharacterBtns();
         PlayerNames = new Dictionary<string, GameObject>();
@@ -36,11 +45,13 @@ public class GameUI
     }
     void Login()
     {
+        SetLoginFailMessage(false);
         LoginButton.interactable = GameObject.Find("NameInput").GetComponent<InputField>().interactable = false;
         foreach (var c in CharacterBtns) c.gameObject.SetActive(false);
-        GameObject.Find("SelectCharacterText").SetActive(false);
+        SelectCharacterText.SetActive(false);
         var myName = GameObject.Find("NameInput").transform.GetChild(2).GetComponent<Text>().text;
         MainGame.Login(myName,selectCharacter);
+        StartButton.gameObject.SetActive(true);
     }
 
     void InitialCharacterBtns()
@@ -127,5 +138,20 @@ public class GameUI
         WinnerMessage.SetActive(false);
         if(GameObject.Find("Winner").transform.childCount>0)
             MainGame.Destroy(GameObject.Find("winnerModel"));
+    }
+
+    public void LoginFail()
+    {
+        SetLoginFailMessage(true);
+        foreach (var c in CharacterBtns) c.gameObject.SetActive(true);
+        SelectCharacterText.SetActive(true);
+        Debug.Log("login fail");
+        LoginButton.interactable = GameObject.Find("NameInput").GetComponent<InputField>().interactable = true;
+        StartButton.gameObject.SetActive(false);
+    }
+
+    public void SetLoginFailMessage(bool show)
+    {
+        LoginFailMessage.SetActive(show);
     }
 }

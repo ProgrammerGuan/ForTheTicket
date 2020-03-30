@@ -33,6 +33,14 @@ class Server{
                 case 'Update':
                 break;
                 case 'Login':
+                for(let c of this.clients){
+                    if(c.Name == detailData.Data.Name){
+                        this.SingleSend(ws,JSON.stringify({
+                            Type : "LoginFail",
+                        }))
+                        return
+                    }
+                }
                 ws.name = detailData.Data.Name
                 p(`${detailData.Data.Name} Login `)
                 p(this.clients.indexOf(ws))
@@ -93,7 +101,15 @@ class Server{
                 this.clients[this.clients.indexOf(ws)].X = detailData.Data.X
                 this.clients[this.clients.indexOf(ws)].Y = detailData.Data.Y
                 this.clients[this.clients.indexOf(ws)].Turn = detailData.Data.Turn
-                this.boradcaseWithoutMyself(ws,data);
+                // p(detailData.Data.Control)
+                if(detailData.Data.Control != 3){
+                    this.boradcaseWithoutMyself(ws,data);
+                    // p("broad to others")
+                }    
+                else {
+                    this.broadcast(ws,data)
+                    // p("broad to all")
+                }
                 break;
                 case 'GotDamage':
                 this.broadcast(ws,data);
@@ -155,13 +171,13 @@ class Server{
             if(this.clients[this.clients.indexOf(ws)].HavingTicket){
                 p("Having Ticket")
                 var bornticketData={}
-                    bornticketData.X = Math.random() * 12 + (-6)
-                    bornticketData.Y = Math.random() * 8 + (-4)
-                    bornticketData.FromPlayer = false
-                    this.GotFirstTicket = false
-                    this.TicketX = bornticketData.X
-                    this.TicketY = bornticketData.Y
-                    this.broadcast(ws,JSON.stringify({Type : "BornTicket",Data : JSON.stringify({ Data : bornticketData})}))
+                bornticketData.X = Math.random() * 12 + (-6)
+                bornticketData.Y = Math.random() * 8 + (-4)
+                bornticketData.FromPlayer = false
+                this.GotFirstTicket = false
+                this.TicketX = bornticketData.X
+                this.TicketY = bornticketData.Y
+                this.broadcast(ws,JSON.stringify({Type : "BornTicket",Data : JSON.stringify({ Data : bornticketData})}))
             }
             this.clients.splice(this.clients.indexOf(ws),1)
             this.broadcast(ws,JSON.stringify({
@@ -191,7 +207,7 @@ class Server{
             } 
         }
     }
-
+    
     timeCount(){
         p(`time up`)
         this.StartGame = false

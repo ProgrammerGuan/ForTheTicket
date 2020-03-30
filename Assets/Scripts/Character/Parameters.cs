@@ -8,7 +8,7 @@
     public static float JumpTime = 0f;
     public static float DamageTime = 0f;
     public static float FallTicketHeight = 6f;
-    public static float NormalKickDistance = 6f;
-    public static float JumpKickDistance = 4f;
+    public static float NormalKickDistance = 4f;
+    public static float JumpKickDistance = 6f;
     public static float GotDamageDistance = 4f;
 }

@@ -46,32 +46,18 @@ public class MainGame : MonoBehaviour
         if (PlayerList.Count > 0)
         {
             var ctrl = Controller.GetControl();
-            PlayerList[myName].Action(ctrl);
             if (ctrl != ControlOrder.None)
             {
-                if (!sendIdle) sendIdle = true;
-                if (ctrl!=ControlOrder.Idle)
+                if (ctrl != ControlOrder.Idle) sendIdle = true;                
+                if (ctrl != ControlOrder.Kick)
+                    PlayerList[myName].Action(ctrl, Parameters.MoveSpeed, PlayerList[myName].transform.position.y,false);
+                if(myPos != PlayerList[myName].transform.position || ctrl == ControlOrder.Kick || sendIdle)
                 {
-                    updateIdle = true;
+                    if (sendIdle && ctrl==ControlOrder.Idle) sendIdle = false;
                     var actMessage = new PlayerActionMessage();
                     var act = new PlayerAction();
                     act.Name = myName;
                     act.Control = ctrl;
-                    act.X = PlayerList[myName].transform.position.x;
-                    act.Y = PlayerList[myName].transform.position.y;
-                    act.Turn = PlayerList[myName].TurnFlag;
-                    actMessage.Data = act;
-                    Send(Message.Act, actMessage);
-                    myPos = PlayerList[myName].transform.position;
-                }
-                else if (updateIdle)
-                {
-                    updateIdle = false;
-                    var actMessage = new PlayerActionMessage();
-                    var act = new PlayerAction();
-                    act.Name = myName;
-                    act.Control = ctrl;
-                    Debug.Log(ctrl);
                     act.X = PlayerList[myName].transform.position.x;
                     act.Y = PlayerList[myName].transform.position.y;
                     act.Turn = PlayerList[myName].TurnFlag;
@@ -80,21 +66,7 @@ public class MainGame : MonoBehaviour
                     myPos = PlayerList[myName].transform.position;
                 }
                 
-            }
-            else if (sendIdle)
-            {
-                sendIdle = false;
-                var actMessage = new PlayerActionMessage();
-                var act = new PlayerAction();
-                act.Name = myName;
-                act.Control = ctrl;
-                Debug.Log(ctrl);
-                act.X = PlayerList[myName].transform.position.x;
-                act.Y = PlayerList[myName].transform.position.y;
-                act.Turn = PlayerList[myName].TurnFlag;
-                actMessage.Data = act;
-                Send(Message.Act, actMessage);
-                myPos = PlayerList[myName].transform.position;
+                
             }
 
         }
@@ -234,6 +206,9 @@ public class MainGame : MonoBehaviour
                 }
                 //Debug.Log("Login");
                 break;
+            case Message.LoginFail:
+                gameUi.LoginFail();
+                break;
             case Message.FirstTicket:
                 var firstTicketData = JsonUtility.FromJson<FirstTicketMessage>(msg.Data);
                 CreatTicket(false, firstTicketData.TicketData.X, firstTicketData.TicketData.Y);
@@ -246,7 +221,8 @@ public class MainGame : MonoBehaviour
             case Message.Act:
                 var ActData = JsonUtility.FromJson<PlayerActionMessage>(msg.Data);
                 if(PlayerList.ContainsKey(ActData.Data.Name))
-                    PlayerList[ActData.Data.Name].Action(ActData.Data.Control);
+                    PlayerList[ActData.Data.Name].Action(ActData.Data.Control,ActData.Data.X,ActData.Data.Y,true);
+                //myPos = PlayerList[myName].transform.position;
                 break;
             case Message.GotDamage:
                 var DamageData = JsonUtility.FromJson<PlayerGotDamageMessage>(msg.Data);
@@ -290,6 +266,7 @@ public class MainGame : MonoBehaviour
 public partial struct Message
 {
     public const string Login = "Login";
+    public const string LoginFail = "LoginFail";
     public const string Act = "Act";
     public const string Join = "Join";
     public const string GotDamage = "GotDamage";
