@@ -29,7 +29,7 @@ public class Character
     }
     public Transform transform => myGameObject.transform;
 
-    public void Action(ControlOrder control,float x,float y,bool fromServer)
+    public void Action(ControlOrder control,float x,float y,bool fromServer,float vx)
     {
 
         switch (control)
@@ -37,13 +37,13 @@ public class Character
             case ControlOrder.moveLeft:
                 if (myGameObject.transform.eulerAngles != new Vector3(0, -180, 0))
                     Turn("left");
-                if(fromServer) Move(x,y);
+                if(fromServer) Move(x,y,vx);
                 else Move(-Parameters.MoveSpeed + myGameObject.transform.position.x, myGameObject.transform.position.y);
                 break;
             case ControlOrder.moveRight:
                 if (myGameObject.transform.eulerAngles != new Vector3(0, 0, 0))
                     Turn("right");
-                if(fromServer) Move(x,y);
+                if(fromServer) Move(x,y,vx);
                 else Move(Parameters.MoveSpeed + myGameObject.transform.position.x, myGameObject.transform.position.y);
                 break;
             case ControlOrder.Jump:
@@ -101,11 +101,17 @@ public class Character
             
     }
 
+    private void Move(float x,float y,float vx)
+    {
+        Move(x, y);
+        MainGame.StartCoroutine(UpdatePosition(vx));
+    }
+
     private void Move(float x, float y)
     {
         if (!Animator.GetBool("Jump"))
             SetAnimation("Walk");
-        myGameObject.transform.position = new Vector3(Mathf.Lerp(myGameObject.transform.position.x, x, 1f), Mathf.Lerp(myGameObject.transform.position.y, y, 1f), 0);
+        myGameObject.transform.position = new Vector3(x,y, 0);
     }
 
     public void Turn(string turnTo)
@@ -129,6 +135,7 @@ public class Character
         SetAnimation(action);
         yield return new WaitForSeconds(time);
         Animator.SetBool(action, false);
+        MainGame.StopCoroutine(SetAction(action,time));
     }
 
     public void GotDamage(bool GotDamageForward)
@@ -153,6 +160,7 @@ public class Character
         AttackRange.SetActive(true);
         yield return new WaitForSeconds(0.8f);
         AttackRange.SetActive(false);
+        MainGame.StopCoroutine(SetKickRange());
     }
 
     public void HaveTicket(bool have)
@@ -160,6 +168,18 @@ public class Character
         HavingTicket = have;
         myGameObject.transform.GetChild(1).gameObject.SetActive(HavingTicket);
     }
-   
+    
+    private IEnumerator UpdatePosition(float vx)
+    {
+        int cnt = 0;
+        while(cnt < 10)
+        {
+            Debug.Log("update " + cnt);
+            myGameObject.transform.position += new Vector3(vx * 0.001f, 0, 0);
+            cnt++;
+            yield return new WaitForEndOfFrame();
+        }
+        MainGame.StopCoroutine(UpdatePosition(vx));
+    }
 
 }

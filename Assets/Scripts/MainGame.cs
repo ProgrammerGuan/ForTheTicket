@@ -17,8 +17,7 @@ public class MainGame : MonoBehaviour
     WsClient client;
     Stack<Message> messages = new Stack<Message>();
     bool sendIdle = false;
-    bool updateIdle = false;
-
+    float sendTime = 0;
     private void Awake()
     {
         Controller = new CharacterController();
@@ -50,8 +49,8 @@ public class MainGame : MonoBehaviour
             {
                 if (ctrl != ControlOrder.Idle) sendIdle = true;                
                 if (ctrl != ControlOrder.Kick)
-                    PlayerList[myName].Action(ctrl, Parameters.MoveSpeed, PlayerList[myName].transform.position.y,false);
-                if(myPos != PlayerList[myName].transform.position || ctrl == ControlOrder.Kick || sendIdle)
+                    PlayerList[myName].Action(ctrl, Parameters.MoveSpeed, PlayerList[myName].transform.position.y,false, Parameters.MoveSpeed);
+                if( myPos != PlayerList[myName].transform.position || ctrl == ControlOrder.Kick || sendIdle )
                 {
                     if (sendIdle && ctrl==ControlOrder.Idle) sendIdle = false;
                     var actMessage = new PlayerActionMessage();
@@ -61,8 +60,13 @@ public class MainGame : MonoBehaviour
                     act.X = PlayerList[myName].transform.position.x;
                     act.Y = PlayerList[myName].transform.position.y;
                     act.Turn = PlayerList[myName].TurnFlag;
+                    act.Vx = (PlayerList[myName].transform.position.x - myPos.x) / 0.001f;
                     actMessage.Data = act;
-                    Send(Message.Act, actMessage);
+                    if(Time.time > sendTime || (ctrl!=ControlOrder.moveLeft && ctrl != ControlOrder.moveRight))
+                    {
+                        Send(Message.Act, actMessage);
+                        sendTime = Time.time + Time.deltaTime * 10;
+                    }
                     myPos = PlayerList[myName].transform.position;
                 }
                 
@@ -221,7 +225,7 @@ public class MainGame : MonoBehaviour
             case Message.Act:
                 var ActData = JsonUtility.FromJson<PlayerActionMessage>(msg.Data);
                 if(PlayerList.ContainsKey(ActData.Data.Name))
-                    PlayerList[ActData.Data.Name].Action(ActData.Data.Control,ActData.Data.X,ActData.Data.Y,true);
+                    PlayerList[ActData.Data.Name].Action(ActData.Data.Control,ActData.Data.X,ActData.Data.Y,true,ActData.Data.Vx);
                 //myPos = PlayerList[myName].transform.position;
                 break;
             case Message.GotDamage:
@@ -327,6 +331,7 @@ public struct PlayerAction
     public string Name;
     public ControlOrder Control;
     public float X;
+    public float Vx;
     public float Y;
     public bool Turn;
 }
