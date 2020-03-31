@@ -13,6 +13,8 @@ public class Character
     public string CharacterName;
     public bool TurnFlag;
     private bool HavingTicket;
+    private IEnumerator updatePositionCoroutine;
+    private bool CRisRunning;
     public Character(MainGame mainGame,string name,string characterName)
     {
         Name = name;
@@ -25,22 +27,24 @@ public class Character
         AttackRange = myGameObject.transform.GetChild(0).gameObject;
         AttackRange.SetActive(false);
         HavingTicket = false;
-
+        CRisRunning = false;
     }
     public Transform transform => myGameObject.transform;
 
-    public void Action(ControlOrder control,float x,float y,bool fromServer,float vx)
+    public void Action(ControlOrder control,float x,float y,bool turn,bool fromServer,float vx)
     {
-
+        
         switch (control)
         {
             case ControlOrder.moveLeft:
+                Debug.Log("move left");
                 if (myGameObject.transform.eulerAngles != new Vector3(0, -180, 0))
                     Turn("left");
                 if(fromServer) Move(x,y,vx);
                 else Move(-Parameters.MoveSpeed + myGameObject.transform.position.x, myGameObject.transform.position.y);
                 break;
             case ControlOrder.moveRight:
+                Debug.Log("move right");
                 if (myGameObject.transform.eulerAngles != new Vector3(0, 0, 0))
                     Turn("right");
                 if(fromServer) Move(x,y,vx);
@@ -50,25 +54,43 @@ public class Character
                 Jump();
                 break;
             case ControlOrder.Kick:
+                if (fromServer && CRisRunning) MainGame.StopCoroutine(updatePositionCoroutine);
                 Kick();
                 break;
             case ControlOrder.Idle:
-                SetAnimation("Idle");
+                if(fromServer) Debug.Log("Idle turn is " + turn);
+                if (fromServer && CRisRunning) MainGame.StopCoroutine(updatePositionCoroutine);
+                if(fromServer) Idle(x, y, turn);
+                else Idle(x, y,TurnFlag);
                 break;
             }
         
         
     }
+
+    private void Idle(float x,float y,bool turn)
+    {
+        if (!Animator.GetBool("Jump")) SetAnimation("Idle");
+        myGameObject.transform.position = new Vector3(x, y);
+        if (turn) Turn("left");
+        else Turn("right");
+    }
+
     private void Jump()
     {
-        Parameters.JumpTime = Time.time;
-        MainGame.StartCoroutine(SetAction("Jump", Parameters.JumpCoolDownTime - 0.5f));
+        //MainGame.StartCoroutine(SetAction("Jump", Parameters.JumpCoolDownTime - 0.5f));
+        SetAnimation("Jump");
+        //Debug.Log("Add force");
         myGameObject.GetComponent<Rigidbody2D>().AddForce(Vector2.up * Parameters.JumpHeight, ForceMode2D.Impulse);
+    }
+
+    public void EndJump()
+    {
+        SetAnimation("Idle");
     }
 
     private void Kick()
     {
-        Parameters.ActionTime = Time.time;
         if (myGameObject.transform.eulerAngles == new Vector3(0, 0, 0))
         {
             if (Animator.GetBool("Walk") || Animator.GetBool("Jump"))
@@ -92,9 +114,9 @@ public class Character
     {
         if (!Animator.GetBool(action))
         {
-            Animator.SetBool("Walk", (action == "Walk") ? true : false);
-            Animator.SetBool("Jump", (action == "Jump") ? true : false);
             Animator.SetBool("Kick", (action == "Kick") ? true : false);
+            Animator.SetBool("Jump", (action == "Jump") ? true : false);
+            Animator.SetBool("Walk", (action == "Walk") ? true : false);
             Animator.SetBool("Idle", (action == "Idle") ? true : false);
             Debug.Log(Name + "Set" + action);
         }
@@ -104,7 +126,13 @@ public class Character
     private void Move(float x,float y,float vx)
     {
         Move(x, y);
-        MainGame.StartCoroutine(UpdatePosition(vx));
+        if (CRisRunning)
+        {
+            CRisRunning = false;
+            MainGame.StopCoroutine(updatePositionCoroutine);
+        }
+        updatePositionCoroutine = UpdatePosition(vx);
+        MainGame.StartCoroutine(updatePositionCoroutine);
     }
 
     private void Move(float x, float y)
@@ -168,18 +196,22 @@ public class Character
         HavingTicket = have;
         myGameObject.transform.GetChild(1).gameObject.SetActive(HavingTicket);
     }
-    
+
+    float UpdatePoCnt = 0;
     private IEnumerator UpdatePosition(float vx)
     {
+        CRisRunning = true;
+        UpdatePoCnt++;
         int cnt = 0;
-        while(cnt < 10)
+        while(cnt < Parameters.SendDistance)
         {
-            Debug.Log("update " + cnt);
+            //Debug.Log("vx is " + vx);
+            //Debug.Log("update " + UpdatePoCnt + " - " + cnt);
             myGameObject.transform.position += new Vector3(vx * 0.001f, 0, 0);
             cnt++;
-            yield return new WaitForEndOfFrame();
+            yield return new WaitForSeconds(0.001f);
+            //yield return new WaitForEndOfFrame();
         }
-        MainGame.StopCoroutine(UpdatePosition(vx));
     }
 
 }

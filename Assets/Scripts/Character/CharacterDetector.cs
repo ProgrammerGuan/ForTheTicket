@@ -17,6 +17,16 @@ public class CharacterDetector : MonoBehaviour
         myName = name;
     }
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "floor")
+        {
+            Debug.Log("set jump");
+            if (myName == MainGame.myName) Parameters.CanJump = true;
+            MainGame.PlayerList[myName].EndJump();
+        }
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         var usefulDamage = Time.time > DamageTime;
@@ -37,10 +47,5 @@ public class CharacterDetector : MonoBehaviour
             Destroy(collision.gameObject);
             Debug.Log("GotTicket");
         }
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        
     }
 }

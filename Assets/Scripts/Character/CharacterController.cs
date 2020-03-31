@@ -23,8 +23,17 @@ public class CharacterController
     {
         if (Do("action"))
         {
-            if (Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.K)) return ControlOrder.Kick;
-            else if ( (Input.GetKey(KeyCode.X) || Input.GetKey(KeyCode.J)) && Do("jump")) return ControlOrder.Jump;
+            if (Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.K))
+            {
+                Parameters.ActionTime = Time.time;
+                return ControlOrder.Kick;
+            }
+            else if ((Input.GetKey(KeyCode.X) || Input.GetKey(KeyCode.J)) && Parameters.CanJump)
+            {
+                //Parameters.JumpTime = Time.time;
+                Parameters.CanJump = false;
+                return ControlOrder.Jump;
+            }
             else if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) return ControlOrder.moveLeft;
             else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) return ControlOrder.moveRight;
             else return ControlOrder.Idle;
@@ -36,8 +45,8 @@ public class CharacterController
     {
         switch (action)
         {
-            case "jump":
-                return Time.time - Parameters.JumpTime > Parameters.JumpCoolDownTime;
+            //case "jump":
+            //    return Time.time - Parameters.JumpTime > Parameters.JumpCoolDownTime;
             case "action":
                 return Time.time - Parameters.ActionTime > Parameters.KickCoolDownTime && Time.time - Parameters.DamageTime > Parameters.DamageCoolDownTime;
             default:

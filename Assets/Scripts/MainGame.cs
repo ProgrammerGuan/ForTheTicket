@@ -9,15 +9,17 @@ public class MainGame : MonoBehaviour
     public GameObject prefab;
     CharacterController Controller;
     GameUI gameUi;
-    Dictionary<string, Character> PlayerList;
+    public Dictionary<string, Character> PlayerList;
     Vector3 myPos;
-    string myName;
+    public string myName;
     bool Logined;
     bool startGameFlag;
     WsClient client;
     Stack<Message> messages = new Stack<Message>();
     bool sendIdle = false;
     float sendTime = 0;
+    float perTime = 0;
+    ControlOrder nowOrder;
     private void Awake()
     {
         Controller = new CharacterController();
@@ -49,7 +51,7 @@ public class MainGame : MonoBehaviour
             {
                 if (ctrl != ControlOrder.Idle) sendIdle = true;                
                 if (ctrl != ControlOrder.Kick)
-                    PlayerList[myName].Action(ctrl, Parameters.MoveSpeed, PlayerList[myName].transform.position.y,false, Parameters.MoveSpeed);
+                    PlayerList[myName].Action(ctrl, PlayerList[myName].transform.position.x, PlayerList[myName].transform.position.y,false,false, Parameters.MoveSpeed);
                 if( myPos != PlayerList[myName].transform.position || ctrl == ControlOrder.Kick || sendIdle )
                 {
                     if (sendIdle && ctrl==ControlOrder.Idle) sendIdle = false;
@@ -60,17 +62,17 @@ public class MainGame : MonoBehaviour
                     act.X = PlayerList[myName].transform.position.x;
                     act.Y = PlayerList[myName].transform.position.y;
                     act.Turn = PlayerList[myName].TurnFlag;
-                    act.Vx = (PlayerList[myName].transform.position.x - myPos.x) / 0.001f;
+                    act.Vx = Parameters.Vx * (act.Turn? -1 : 1);
                     actMessage.Data = act;
-                    if(Time.time > sendTime || (ctrl!=ControlOrder.moveLeft && ctrl != ControlOrder.moveRight))
+                    if(Time.time > sendTime || (ctrl!=ControlOrder.moveLeft && ctrl != ControlOrder.moveRight) || nowOrder!=ctrl)
                     {
                         Send(Message.Act, actMessage);
-                        sendTime = Time.time + Time.deltaTime * 10;
+                        sendTime = Time.time + Time.deltaTime * Parameters.SendDistance;
+                        perTime = (sendTime - Time.time) / Parameters.SendDistance;
                     }
                     myPos = PlayerList[myName].transform.position;
                 }
-                
-                
+                nowOrder = ctrl;
             }
 
         }
@@ -225,7 +227,7 @@ public class MainGame : MonoBehaviour
             case Message.Act:
                 var ActData = JsonUtility.FromJson<PlayerActionMessage>(msg.Data);
                 if(PlayerList.ContainsKey(ActData.Data.Name))
-                    PlayerList[ActData.Data.Name].Action(ActData.Data.Control,ActData.Data.X,ActData.Data.Y,true,ActData.Data.Vx);
+                    PlayerList[ActData.Data.Name].Action(ActData.Data.Control,ActData.Data.X,ActData.Data.Y,ActData.Data.Turn,true,ActData.Data.Vx);
                 //myPos = PlayerList[myName].transform.position;
                 break;
             case Message.GotDamage:
@@ -239,7 +241,8 @@ public class MainGame : MonoBehaviour
                 break;
             case Message.GetTicket:
                 var GetTicketData = JsonUtility.FromJson<GetTicketMessage>(msg.Data);
-                PlayerList[GetTicketData.Data.Name].HaveTicket(true); 
+                PlayerList[GetTicketData.Data.Name].HaveTicket(true);
+                if(GameObject.Find("Ticket"))Destroy(GameObject.Find("Ticket"));
                 break;
             case Message.Exit:
                 var ExitMessage = JsonUtility.FromJson<ExitMessage>(msg.Data);
