@@ -12,6 +12,7 @@ public class Character
     string Name;
     public string CharacterName;
     public bool TurnFlag;
+    public bool CanMove;
     private bool HavingTicket;
     private IEnumerator updatePositionCoroutine;
     private bool CRisRunning;
@@ -28,29 +29,32 @@ public class Character
         AttackRange.SetActive(false);
         HavingTicket = false;
         CRisRunning = false;
+        CanMove = true;
     }
     public Transform transform => myGameObject.transform;
 
-    public void Action(ControlOrder control,float x,float y,bool turn,bool fromServer,float vx)
+    public void Action(ControlOrder control, float x, float y, bool turn, bool fromServer, float vx)
     {
-        
+
         switch (control)
         {
             case ControlOrder.moveLeft:
-                Debug.Log("move left");
+                //Debug.Log("move left");
                 if (myGameObject.transform.eulerAngles != new Vector3(0, -180, 0))
                     Turn("left");
-                if(fromServer) Move(x,y,vx);
+                if (fromServer) Move(x, y, vx);
                 else Move(-Parameters.MoveSpeed + myGameObject.transform.position.x, myGameObject.transform.position.y);
                 break;
             case ControlOrder.moveRight:
-                Debug.Log("move right");
+                //Debug.Log("move right");
                 if (myGameObject.transform.eulerAngles != new Vector3(0, 0, 0))
                     Turn("right");
-                if(fromServer) Move(x,y,vx);
+                if (fromServer) Move(x, y, vx);
                 else Move(Parameters.MoveSpeed + myGameObject.transform.position.x, myGameObject.transform.position.y);
                 break;
             case ControlOrder.Jump:
+                if (!fromServer && (Parameters.CanJump > Time.time || Animator.GetBool("Jump"))) break;
+                else if (Animator.GetBool("Jump")) break;
                 Jump();
                 break;
             case ControlOrder.Kick:
@@ -58,7 +62,7 @@ public class Character
                 Kick();
                 break;
             case ControlOrder.Idle:
-                if(fromServer) Debug.Log("Idle turn is " + turn);
+                //if(fromServer) Debug.Log("Idle turn is " + turn);
                 if (fromServer && CRisRunning) MainGame.StopCoroutine(updatePositionCoroutine);
                 if(fromServer) Idle(x, y, turn);
                 else Idle(x, y,TurnFlag);
@@ -67,6 +71,7 @@ public class Character
         
         
     }
+
 
     private void Idle(float x,float y,bool turn)
     {
@@ -78,16 +83,19 @@ public class Character
 
     private void Jump()
     {
-        //MainGame.StartCoroutine(SetAction("Jump", Parameters.JumpCoolDownTime - 0.5f));
         SetAnimation("Jump");
         //Debug.Log("Add force");
+        //Debug.Log(Name + " Jump");
+        //GameObject.Find(Name).GetComponent<Rigidbody2D>().velocity *= Vector2.right;
         myGameObject.GetComponent<Rigidbody2D>().AddForce(Vector2.up * Parameters.JumpHeight, ForceMode2D.Impulse);
     }
 
     public void EndJump()
     {
+        //Debug.Log("End Jump");
         SetAnimation("Idle");
     }
+
 
     private void Kick()
     {
@@ -118,7 +126,9 @@ public class Character
             Animator.SetBool("Jump", (action == "Jump") ? true : false);
             Animator.SetBool("Walk", (action == "Walk") ? true : false);
             Animator.SetBool("Idle", (action == "Idle") ? true : false);
-            Debug.Log(Name + "Set" + action);
+            //Debug.Log(Name + " Animation Set" + action);
+            //Debug.Log("Idle is " + Animator.GetBool("Idle"));
+            //Debug.Log("Jump is " + Animator.GetBool("Jump"));
         }
             
     }
@@ -139,7 +149,8 @@ public class Character
     {
         if (!Animator.GetBool("Jump"))
             SetAnimation("Walk");
-        myGameObject.transform.position = new Vector3(x,y, 0);
+        if (CanMove) myGameObject.transform.position = new Vector3(x, y, 0);
+            
     }
 
     public void Turn(string turnTo)
@@ -207,7 +218,7 @@ public class Character
         {
             //Debug.Log("vx is " + vx);
             //Debug.Log("update " + UpdatePoCnt + " - " + cnt);
-            myGameObject.transform.position += new Vector3(vx * 0.001f, 0, 0);
+            if (CanMove) myGameObject.transform.position += new Vector3(vx * 0.001f, 0, 0);
             cnt++;
             yield return new WaitForSeconds(0.001f);
             //yield return new WaitForEndOfFrame();

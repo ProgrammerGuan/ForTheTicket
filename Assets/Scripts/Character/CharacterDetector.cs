@@ -7,7 +7,6 @@ public class CharacterDetector : MonoBehaviour
     MainGame MainGame;
     string myName;
     float DamageTime;
-
     private void Awake()
     {
         MainGame = GameObject.FindGameObjectWithTag("MainGameManager").GetComponent<MainGame>();
@@ -19,12 +18,7 @@ public class CharacterDetector : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.tag == "floor")
-        {
-            Debug.Log("set jump");
-            if (myName == MainGame.myName) Parameters.CanJump = true;
-            MainGame.PlayerList[myName].EndJump();
-        }
+        
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -48,4 +42,41 @@ public class CharacterDetector : MonoBehaviour
             Debug.Log("GotTicket");
         }
     }
+
+    // bottomのObjectで使う
+    public void UpdateJump(Collider2D collision)
+    {
+        if ((collision.gameObject.tag == "floor" || collision.gameObject.tag == "Player") && MainGame.PlayerList[myName].Animator.GetBool("Jump"))
+        {
+            if (myName == MainGame.myName) Debug.Log(collision.gameObject.tag);
+            MainGame.PlayerList[myName].EndJump();
+            if (myName == MainGame.myName) Parameters.CanJump = Time.time + 0.01f;
+        }
+    }
+
+    //FromtのObjectで使う
+    public void CanNotMove(Collider2D collision)
+    {
+        //Debug.Log(collision.gameObject.tag);
+        if (collision.gameObject.layer == 8) // layer 8 is Stage
+        {
+            //Debug.Log("can not move");
+
+            MainGame.PlayerList[myName].CanMove = false;
+        }
+    }
+
+    //FromtのObjectで使う
+    public void CanMove(Collider2D collision)
+    {
+        //Debug.Log(collision.gameObject.tag);
+
+        if (collision.gameObject.layer == 8) // layer 8 is Stage
+        {
+            //Debug.Log("can move");
+
+            MainGame.PlayerList[myName].CanMove = true;
+        }
+    }
+
 }

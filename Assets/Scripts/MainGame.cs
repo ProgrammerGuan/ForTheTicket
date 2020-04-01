@@ -52,7 +52,7 @@ public class MainGame : MonoBehaviour
                 if (ctrl != ControlOrder.Idle) sendIdle = true;                
                 if (ctrl != ControlOrder.Kick)
                     PlayerList[myName].Action(ctrl, PlayerList[myName].transform.position.x, PlayerList[myName].transform.position.y,false,false, Parameters.MoveSpeed);
-                if( myPos != PlayerList[myName].transform.position || ctrl == ControlOrder.Kick || sendIdle )
+                if(ctrl == ControlOrder.Kick || sendIdle )
                 {
                     if (sendIdle && ctrl==ControlOrder.Idle) sendIdle = false;
                     var actMessage = new PlayerActionMessage();
@@ -64,7 +64,7 @@ public class MainGame : MonoBehaviour
                     act.Turn = PlayerList[myName].TurnFlag;
                     act.Vx = Parameters.Vx * (act.Turn? -1 : 1);
                     actMessage.Data = act;
-                    if(Time.time > sendTime || (ctrl!=ControlOrder.moveLeft && ctrl != ControlOrder.moveRight) || nowOrder!=ctrl)
+                    if (myPos != PlayerList[myName].transform.position || Time.time > sendTime || (ctrl!=ControlOrder.moveLeft && ctrl != ControlOrder.moveRight) || nowOrder!=ctrl)
                     {
                         Send(Message.Act, actMessage);
                         sendTime = Time.time + Time.deltaTime * Parameters.SendDistance;

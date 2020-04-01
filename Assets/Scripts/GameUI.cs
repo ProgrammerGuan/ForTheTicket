@@ -16,11 +16,13 @@ public class GameUI
     Text TimeCount;
     MainGame MainGame;
     Dictionary<string,GameObject> PlayerNames;
+    Camera UiCamera;
     float totaltime;
     int min, second;
     public GameUI(MainGame game)
     {
         MainGame = game;
+        UiCamera = GameObject.Find("UiCamera").GetComponent<Camera>();
         LoginButton = GameObject.Find("LoginButton").GetComponent<Button>();
         LoginButton.onClick.AddListener(Login);
         ExitLoginFailBtn = GameObject.Find("ExitLoginFailButton").GetComponent<Button>();
@@ -122,6 +124,7 @@ public class GameUI
         showPlayer.name = "winnerModel";
         GameObject.Find(showPlayer.name).transform.SetParent(GameObject.Find("Winner").transform);
         GameObject.Find(showPlayer.name).transform.localPosition = Vector3.zero;
+        
     }
 
     public void UpdateTime()

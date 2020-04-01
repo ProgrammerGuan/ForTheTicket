@@ -28,12 +28,7 @@ public class CharacterController
                 Parameters.ActionTime = Time.time;
                 return ControlOrder.Kick;
             }
-            else if ((Input.GetKey(KeyCode.X) || Input.GetKey(KeyCode.J)) && Parameters.CanJump)
-            {
-                //Parameters.JumpTime = Time.time;
-                Parameters.CanJump = false;
-                return ControlOrder.Jump;
-            }
+            else if (Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.J)) return ControlOrder.Jump;
             else if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) return ControlOrder.moveLeft;
             else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) return ControlOrder.moveRight;
             else return ControlOrder.Idle;

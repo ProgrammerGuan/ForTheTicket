@@ -2,8 +2,8 @@
 {
     public static float MoveSpeed = 0.1f;
     public static float Vx = 100f;
-    public static float JumpHeight = 5f;
-    public static bool CanJump = false;
+    public static float JumpHeight = 6f;
+    public static float CanJump = 0;
     //public static float JumpCoolDownTime = 1f;
     public static float KickCoolDownTime = 1.3f;
     public static float DamageCoolDownTime = 1.5f;

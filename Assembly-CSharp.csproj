@@ -64,6 +64,7 @@
     <Compile Include="Assets\Scripts\Character\CharacterController.cs" />
     <Compile Include="Assets\Scripts\Character\CharacterDetector.cs" />
     <Compile Include="Assets\Scripts\Character\Parameters.cs" />
+    <Compile Include="Assets\Scripts\Character\Sensor.cs" />
     <Compile Include="Assets\Scripts\GameUI.cs" />
     <Compile Include="Assets\Scripts\MainGame.cs" />
     <Compile Include="Assets\Scripts\WsClient.cs" />

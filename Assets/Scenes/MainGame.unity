@@ -550,7 +550,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 34.5, y: -26.1}
+  m_AnchoredPosition: {x: 34.5, y: -26.100006}
   m_SizeDelta: {x: 160, y: 52.98999}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &147878561
@@ -629,7 +629,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -30.8, y: -27}
+  m_AnchoredPosition: {x: -30.799988, y: -27}
   m_SizeDelta: {x: 94.900024, y: 45.600006}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &182869779
@@ -1047,7 +1047,7 @@ GameObject:
   m_Component:
   - component: {fileID: 324857353}
   - component: {fileID: 324857354}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: floor (5)
   m_TagString: floor
   m_Icon: {fileID: 0}
@@ -1209,7 +1209,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 95, y: -75.3}
+  m_AnchoredPosition: {x: 95, y: -75.29999}
   m_SizeDelta: {x: 160, y: 213.96002}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &438323543
@@ -1297,7 +1297,7 @@ GameObject:
   m_Component:
   - component: {fileID: 461233459}
   - component: {fileID: 461233460}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: floor (1)
   m_TagString: floor
   m_Icon: {fileID: 0}
@@ -1714,7 +1714,7 @@ GameObject:
   - component: {fileID: 554955614}
   - component: {fileID: 554955616}
   - component: {fileID: 554955617}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: plant2 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2108,7 +2108,7 @@ GameObject:
   - component: {fileID: 786290283}
   - component: {fileID: 786290282}
   - component: {fileID: 786290281}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Floor (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2291,7 +2291,7 @@ Canvas:
   m_GameObject: {fileID: 830142330}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 1
+  m_RenderMode: 0
   m_Camera: {fileID: 511366276}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -2556,7 +2556,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -16.7}
+  m_AnchoredPosition: {x: 0, y: -16.699997}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &849143248
@@ -2833,7 +2833,7 @@ GameObject:
   - component: {fileID: 965541872}
   - component: {fileID: 965541874}
   - component: {fileID: 965541873}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: plant1 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3093,7 +3093,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1067281363}
   - component: {fileID: 1067281364}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: floor (3)
   m_TagString: floor
   m_Icon: {fileID: 0}
@@ -3228,7 +3228,7 @@ GameObject:
   - component: {fileID: 1157115122}
   - component: {fileID: 1157115121}
   - component: {fileID: 1157115120}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: light
   m_TagString: floor
   m_Icon: {fileID: 0}
@@ -3335,7 +3335,7 @@ GameObject:
   - component: {fileID: 1188564950}
   - component: {fileID: 1188564952}
   - component: {fileID: 1188564953}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: plant1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3659,7 +3659,7 @@ GameObject:
   - component: {fileID: 1266214467}
   - component: {fileID: 1266214466}
   - component: {fileID: 1266214465}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Floor (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3785,7 +3785,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1278105902}
   - component: {fileID: 1278105903}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: floor (2)
   m_TagString: floor
   m_Icon: {fileID: 0}
@@ -3971,7 +3971,7 @@ GameObject:
   - component: {fileID: 1370380595}
   - component: {fileID: 1370380594}
   - component: {fileID: 1370380593}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: chair
   m_TagString: floor
   m_Icon: {fileID: 0}
@@ -4240,7 +4240,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 180.6, y: -16}
+  m_AnchoredPosition: {x: 180.59998, y: -16}
   m_SizeDelta: {x: 86.890015, y: 30}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1591717030
@@ -4328,7 +4328,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1634525408}
   - component: {fileID: 1634525409}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: floor (4)
   m_TagString: floor
   m_Icon: {fileID: 0}
@@ -4640,7 +4640,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 100.1, y: -70.2}
+  m_AnchoredPosition: {x: 100.099976, y: -70.20001}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1844390092
@@ -4720,7 +4720,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 13.5, y: -15.6}
+  m_AnchoredPosition: {x: 13.5, y: -15.600006}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1920405533
@@ -4830,7 +4830,7 @@ GameObject:
   - component: {fileID: 1922720789}
   - component: {fileID: 1922720791}
   - component: {fileID: 1922720792}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: plant2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4985,7 +4985,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 51.1, y: -78.7}
+  m_AnchoredPosition: {x: 51.100006, y: -78.7}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1929779359
@@ -5214,7 +5214,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 20.9, y: -76.2}
+  m_AnchoredPosition: {x: 20.900024, y: -76.20001}
   m_SizeDelta: {x: 160, y: 213.96002}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &2053476928
@@ -5302,7 +5302,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2116609360}
   - component: {fileID: 2116609361}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: floor
   m_TagString: floor
   m_Icon: {fileID: 0}
