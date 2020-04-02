@@ -67,6 +67,7 @@
     <Compile Include="Assets\Scripts\Character\Sensor.cs" />
     <Compile Include="Assets\Scripts\GameUI.cs" />
     <Compile Include="Assets\Scripts\MainGame.cs" />
+    <Compile Include="Assets\Scripts\Ticket.cs" />
     <Compile Include="Assets\Scripts\WsClient.cs" />
     <None Include="Assets\FreeAssets\kenney_tooncharacters1\Male adventurer\Tilesheet\character_maleAdventurer_sheetHD.xml" />
     <None Include="Assets\FreeAssets\kenney_tooncharacters1\Female person\Tilesheet\character_femalePerson_sheet.xml" />

@@ -14,6 +14,7 @@ public class GameUI
     Button ExitLoginFailBtn;
     GameObject SelectCharacterText;
     Text TimeCount;
+    Text ReadyCount;
     MainGame MainGame;
     Dictionary<string,GameObject> PlayerNames;
     Camera UiCamera;
@@ -34,6 +35,8 @@ public class GameUI
         StartButton.gameObject.SetActive(false);
         TimeCount = GameObject.Find("TimeCount").GetComponent<Text>();
         TimeCount.gameObject.SetActive(false);
+        ReadyCount = GameObject.Find("ReadyCount").GetComponent<Text>();
+        ReadyCount.gameObject.SetActive(false);
         ExitWinMessageBtn = GameObject.Find("ExitWinMessageButton").GetComponent<Button>();
         ExitWinMessageBtn.onClick.AddListener(delegate { ExitWinMessage(); });
         WinnerMessage = GameObject.Find("WinnerMessage");
@@ -101,8 +104,20 @@ public class GameUI
     {
         foreach (var name_ui in PlayerNames)
         {
-            name_ui.Value.transform.position = RectTransformUtility.WorldToScreenPoint(Camera.main, playerList[name_ui.Key].transform.position + Vector3.up * 0.5f);
+            name_ui.Value.transform.position = playerList[name_ui.Key].transform.position + Vector3.up * 0.5f;
+            //name_ui.Value.transform.position = RectTransformUtility.WorldToScreenPoint(Camera.main, playerList[name_ui.Key].transform.position + Vector3.up * 0.5f);
         }
+    }
+
+    public void UpdateReadyCount(int cnt)
+    {
+        if(!ReadyCount.gameObject.active) ReadyCount.gameObject.SetActive(true);
+        ReadyCount.text = cnt.ToString();
+    }
+
+    public void CloseReadyCount()
+    {
+        ReadyCount.gameObject.SetActive(false);
     }
 
     public void StartGame(int remainingTime)
@@ -118,13 +133,21 @@ public class GameUI
         StartButton.gameObject.SetActive(true);
         TimeCount.gameObject.SetActive(false);
         WinnerMessage.SetActive(true);
-        
-        GameObject.Find("NameText").GetComponent<Text>().text = winnerName;
-        var showPlayer = MainGame.Instantiate(Resources.Load(string.Format("Prefabs/{0}", characterName+"cheer")), new Vector3(0, 0, 0), Quaternion.identity);
-        showPlayer.name = "winnerModel";
-        GameObject.Find(showPlayer.name).transform.SetParent(GameObject.Find("Winner").transform);
-        GameObject.Find(showPlayer.name).transform.localPosition = Vector3.zero;
-        
+        if(winnerName != "N;O:N-E,")
+        {
+            GameObject.Find("WinnerTitle").GetComponent<Text>().text = "WINNER";
+            GameObject.Find("NameText").GetComponent<Text>().text = winnerName;
+            var showPlayer = MainGame.Instantiate(Resources.Load(string.Format("Prefabs/{0}", characterName + "cheer")), new Vector3(0, 0, 0), Quaternion.identity);
+            showPlayer.name = "winnerModel";
+            GameObject.Find(showPlayer.name).transform.SetParent(GameObject.Find("Winner").transform);
+            GameObject.Find(showPlayer.name).transform.localPosition = Vector3.zero;
+        }
+        else
+        {
+            GameObject.Find("NameText").GetComponent<Text>().text = "";
+            GameObject.Find("WinnerTitle").GetComponent<Text>().text = "DRAW";
+        }
+
     }
 
     public void UpdateTime()

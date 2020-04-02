@@ -45,3 +45,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Winner
+    uniqueID: 1637781071
+    locked: 0
+  - name: UI
+    uniqueID: 2075109883
+    locked: 0
+  - name: Player
+    uniqueID: 2251246041
+    locked: 0
+  - name: Stage
+    uniqueID: 778986497
+    locked: 0

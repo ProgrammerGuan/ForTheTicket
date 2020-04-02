@@ -10,7 +10,7 @@ class Server{
         this.TicketX = 0
         this.TicketY = 0
         this.StartGame = false
-        this.GameTime = 60
+        this.GameTime = 120
         this.EndTime_M = 0
         this.EndTime_S = 0
     }
@@ -112,6 +112,9 @@ class Server{
                 }
                 break;
                 case 'GotDamage':
+                for(let c of this.clients){
+                    if(c.Name == detailData.Data.Name && c.HavingTicket) c.HavingTicket = false
+                }
                 this.broadcast(ws,data);
                 break;
                 case 'BornTicket':
@@ -215,6 +218,7 @@ class Server{
         for(let c of this.clients){
             if(c.HavingTicket) winnername = c.Name
         }
+        if(winnername == "") winnername = "N;O:N-E,"
         this.broadcast(null,JSON.stringify({
             Type : 'GameEnd',
             Data : JSON.stringify({
@@ -224,7 +228,7 @@ class Server{
     }
     
     sendPosition(){
-        
+
     }
 
 }

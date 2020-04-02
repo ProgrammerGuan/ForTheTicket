@@ -52,7 +52,8 @@ public class MainGame : MonoBehaviour
                 if (ctrl != ControlOrder.Idle) sendIdle = true;                
                 if (ctrl != ControlOrder.Kick)
                     PlayerList[myName].Action(ctrl, PlayerList[myName].transform.position.x, PlayerList[myName].transform.position.y,false,false, Parameters.MoveSpeed);
-                if(ctrl == ControlOrder.Kick || sendIdle )
+                if(ctrl == ControlOrder.Kick || sendIdle ||
+                    myPos.x != PlayerList[myName].transform.position.x)
                 {
                     if (sendIdle && ctrl==ControlOrder.Idle) sendIdle = false;
                     var actMessage = new PlayerActionMessage();
@@ -64,7 +65,7 @@ public class MainGame : MonoBehaviour
                     act.Turn = PlayerList[myName].TurnFlag;
                     act.Vx = Parameters.Vx * (act.Turn? -1 : 1);
                     actMessage.Data = act;
-                    if (myPos != PlayerList[myName].transform.position || Time.time > sendTime || (ctrl!=ControlOrder.moveLeft && ctrl != ControlOrder.moveRight) || nowOrder!=ctrl)
+                    if (Time.time > sendTime || (ctrl!=ControlOrder.moveLeft && ctrl != ControlOrder.moveRight) || nowOrder!=ctrl)
                     {
                         Send(Message.Act, actMessage);
                         sendTime = Time.time + Time.deltaTime * Parameters.SendDistance;
@@ -141,15 +142,26 @@ public class MainGame : MonoBehaviour
         }
         Destroy(GameObject.Find("Ticket"));
         CreatTicket(message.Data.TicketData.FromPlayer, message.Data.TicketData.X, message.Data.TicketData.Y);
+    }
+
+    IEnumerator ReadyToStart(GameSettingMessage message)
+    {
         gameUi.StartGame(message.Data.RemainingTime);
+        for (int cnt = 3; cnt > 0; cnt--)
+        {
+            gameUi.UpdateReadyCount(cnt);
+            yield return new WaitForSeconds(1);
+        }
+        gameUi.CloseReadyCount();
+        GameSetting(message);
     }
 
     public void GameEnd(string winnerName)
     {
         startGameFlag = false;
-        Debug.Log(winnerName + " win");
-        gameUi.GameEnd(winnerName,PlayerList[winnerName].CharacterName);
-        
+        //Debug.Log(winnerName + " win");
+        if(winnerName!= "N;O:N-E,") gameUi.GameEnd(winnerName,PlayerList[winnerName].CharacterName);
+        else gameUi.GameEnd(winnerName, "null");
     }
 
     void CreatTicket(bool fromPlayer, float x, float y)
@@ -253,7 +265,8 @@ public class MainGame : MonoBehaviour
                 break;
             case Message.StartGame:
                 var StartGameMessage = JsonUtility.FromJson<GameSettingMessage>(msg.Data);
-                GameSetting(StartGameMessage);
+                StartCoroutine(ReadyToStart(StartGameMessage));
+                //GameSetting(StartGameMessage);
                 break;
             case Message.GameEnd:
                 var GameEndMessage = JsonUtility.FromJson<GameEndMessage>(msg.Data);

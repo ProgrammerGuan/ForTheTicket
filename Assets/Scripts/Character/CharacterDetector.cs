@@ -16,11 +16,6 @@ public class CharacterDetector : MonoBehaviour
         myName = name;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         var usefulDamage = Time.time > DamageTime;
@@ -35,11 +30,12 @@ public class CharacterDetector : MonoBehaviour
             DamageTime = Time.time + Parameters.DamageCoolDownTime;
             MainGame.MineGotDamage(myName,damageForward);
         }
-        else if (collision.gameObject.name == "Ticket")
+        else if (collision.gameObject.name == "Ticket" && !collision.gameObject.GetComponent<Ticket>().BeGetted)
         {
             MainGame.GetTicket(myName);
             Destroy(collision.gameObject);
-            Debug.Log("GotTicket");
+            collision.gameObject.GetComponent<Ticket>().BeGetted = true;
+            Debug.Log(myName + " GotTicket");
         }
     }
 
@@ -48,7 +44,6 @@ public class CharacterDetector : MonoBehaviour
     {
         if ((collision.gameObject.tag == "floor" || collision.gameObject.tag == "Player") && MainGame.PlayerList[myName].Animator.GetBool("Jump"))
         {
-            if (myName == MainGame.myName) Debug.Log(collision.gameObject.tag);
             MainGame.PlayerList[myName].EndJump();
             if (myName == MainGame.myName) Parameters.CanJump = Time.time + 0.01f;
         }
@@ -58,10 +53,8 @@ public class CharacterDetector : MonoBehaviour
     public void CanNotMove(Collider2D collision)
     {
         //Debug.Log(collision.gameObject.tag);
-        if (collision.gameObject.layer == 8) // layer 8 is Stage
+        if (collision.gameObject.layer == 8 || collision.gameObject.tag == "Player") // layer 8 is Stage
         {
-            //Debug.Log("can not move");
-
             MainGame.PlayerList[myName].CanMove = false;
         }
     }
@@ -71,7 +64,7 @@ public class CharacterDetector : MonoBehaviour
     {
         //Debug.Log(collision.gameObject.tag);
 
-        if (collision.gameObject.layer == 8) // layer 8 is Stage
+        if (collision.gameObject.layer == 8 || collision.gameObject.tag == "Player") // layer 8 is Stage
         {
             //Debug.Log("can move");
 

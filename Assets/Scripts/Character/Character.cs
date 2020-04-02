@@ -87,7 +87,9 @@ public class Character
         //Debug.Log("Add force");
         //Debug.Log(Name + " Jump");
         //GameObject.Find(Name).GetComponent<Rigidbody2D>().velocity *= Vector2.right;
-        myGameObject.GetComponent<Rigidbody2D>().AddForce(Vector2.up * Parameters.JumpHeight, ForceMode2D.Impulse);
+        var rigidbody = myGameObject.GetComponent<Rigidbody2D>();
+        if (rigidbody.velocity.y > 0) rigidbody.velocity = new Vector2(rigidbody.velocity.x,0);
+        rigidbody.AddForce(Vector2.up * Parameters.JumpHeight, ForceMode2D.Impulse);
     }
 
     public void EndJump()
@@ -112,7 +114,7 @@ public class Character
                 myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.left * Parameters.JumpKickDistance;
             else myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.left * Parameters.NormalKickDistance;
         }
-        MainGame.StartCoroutine(SetAction("Kick", Parameters.KickCoolDownTime-0.5f));
+        MainGame.StartCoroutine(SetAction("Kick", Parameters.KickCoolDownTime-0.1f));
         MainGame.StartCoroutine(SetKickRange());
     }
 
@@ -179,6 +181,7 @@ public class Character
 
     public void GotDamage(bool GotDamageForward)
     {
+        if(MainGame.myName == Name) Parameters.DamageTime = Time.time;
         //Right side got damage
         if (GotDamageForward) Turn("right");
         else Turn("left");  // Left side got damage
@@ -197,7 +200,7 @@ public class Character
     {
         yield return new WaitForSeconds(0.3f);
         AttackRange.SetActive(true);
-        yield return new WaitForSeconds(0.8f);
+        yield return new WaitForSeconds(0.65f);
         AttackRange.SetActive(false);
         MainGame.StopCoroutine(SetKickRange());
     }
@@ -221,7 +224,6 @@ public class Character
             if (CanMove) myGameObject.transform.position += new Vector3(vx * 0.001f, 0, 0);
             cnt++;
             yield return new WaitForSeconds(0.001f);
-            //yield return new WaitForEndOfFrame();
         }
     }
 
