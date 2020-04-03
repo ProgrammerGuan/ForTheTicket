@@ -1,6 +1,6 @@
 ﻿static public class Parameters
 {
-    public static float MoveSpeed = 0.07f;
+    public static float MoveSpeed = 0.08f;
     public static float Vx = MoveSpeed / 0.001f;
     public static float JumpHeight = 6f;
     public static float CanJump = 0;

@@ -22,10 +22,12 @@ public class MainGame : MonoBehaviour
     ControlOrder nowOrder;
 
     //Camera Shake
+    Vector3 cameraOriPos;
     Vector3 shakeDir = Vector3.one * 0.1f;
     float shakeTime = 1f;
     float currentTime = 0;
     float totalTime = 0;
+    bool resetCameraFlag = false;
     private void Awake()
     {
         Controller = new CharacterController();
@@ -45,7 +47,7 @@ public class MainGame : MonoBehaviour
         //client = new WsClient("ws://" + adrList[1].ToString() + ":4000");
 
         client.OnMessage = onMessage;
-
+        cameraOriPos = Camera.main.transform.position;
     }
 
     // Update is called once per frame
@@ -98,6 +100,7 @@ public class MainGame : MonoBehaviour
     {
         totalTime = shakeTime;
         currentTime = shakeTime;
+        resetCameraFlag = true;
     }
 
     public void CameraUpdateShake()
@@ -115,9 +118,16 @@ public class MainGame : MonoBehaviour
         }
         else
         {
+            if (resetCameraFlag) ResetCamera();
             currentTime = 0f;
             totalTime = 0f;
         }
+    }
+
+    private void ResetCamera()
+    {
+        Camera.main.transform.position = cameraOriPos;
+        resetCameraFlag = false;
     }
 
     private void LateUpdate()

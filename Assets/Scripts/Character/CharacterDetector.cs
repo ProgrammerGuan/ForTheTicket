@@ -23,7 +23,7 @@ public class CharacterDetector : MonoBehaviour
         {
             var damageForward = true;
             Debug.Log(myName + " GetDamage");
-            if (collision.transform.position.x > gameObject.transform.position.x)
+            if (collision.transform.position.x> gameObject.transform.position.x)
                 damageForward = true;
             else
                 damageForward = false;
@@ -35,6 +35,7 @@ public class CharacterDetector : MonoBehaviour
             MainGame.GetTicket(myName);
             Destroy(collision.gameObject);
             collision.gameObject.GetComponent<Ticket>().BeGetted = true;
+            var kickEffect = Instantiate(Resources.Load("Prefabs/GETEFFECT"), gameObject.transform.position+Vector3.up*0.5f, Quaternion.identity);
             Debug.Log(myName + " GotTicket");
         }
     }
@@ -75,10 +76,13 @@ public class CharacterDetector : MonoBehaviour
     //Kicked player -> MainGame Shake Camera
     public void KickedPlayer(Collider2D collision)
     {
-        if(collision.gameObject.tag == "Player"　&& myName == MainGame.myName)
+        if(collision.gameObject.tag == "Player")
         {
-            MainGame.CameraShakeTrigger();
+            if(myName == MainGame.myName) MainGame.CameraShakeTrigger();
             MainGame.PlayerList[myName].AnimatorFrameStop();
+            // Effect
+            var kickEffect = Instantiate(Resources.Load("Prefabs/KICKEFFECT"), gameObject.transform.GetChild(0).transform.position, Quaternion.identity);
+            Debug.Log("Kick Effect : " + kickEffect.name);
         }
     }
 

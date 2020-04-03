@@ -60,19 +60,34 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\FreeAssets\JMO Assets\Cartoon FX\Demo\Assets\CFX_AutoStopLoopedEffect.cs" />
+    <Compile Include="Assets\FreeAssets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_New.cs" />
+    <Compile Include="Assets\FreeAssets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_RandomDir.cs" />
+    <Compile Include="Assets\FreeAssets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_RandomDirectionTranslate.cs" />
+    <Compile Include="Assets\FreeAssets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_RotateCamera.cs" />
+    <Compile Include="Assets\FreeAssets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_Translate.cs" />
+    <Compile Include="Assets\FreeAssets\JMO Assets\Cartoon FX\Scripts\CFX_AutoDestructShuriken.cs" />
+    <Compile Include="Assets\FreeAssets\JMO Assets\Cartoon FX\Scripts\CFX_AutoRotate.cs" />
+    <Compile Include="Assets\FreeAssets\JMO Assets\Cartoon FX\Scripts\CFX_LightFlicker.cs" />
+    <Compile Include="Assets\FreeAssets\JMO Assets\Cartoon FX\Scripts\CFX_LightIntensityFade.cs" />
     <Compile Include="Assets\Scripts\Character\Character.cs" />
     <Compile Include="Assets\Scripts\Character\CharacterController.cs" />
     <Compile Include="Assets\Scripts\Character\CharacterDetector.cs" />
     <Compile Include="Assets\Scripts\Character\Parameters.cs" />
     <Compile Include="Assets\Scripts\Character\Sensor.cs" />
+    <Compile Include="Assets\Scripts\EffectLayerManager.cs" />
     <Compile Include="Assets\Scripts\GameUI.cs" />
     <Compile Include="Assets\Scripts\MainGame.cs" />
     <Compile Include="Assets\Scripts\Ticket.cs" />
     <Compile Include="Assets\Scripts\WsClient.cs" />
+    <None Include="Assets\FreeAssets\JMO Assets\Cartoon FX\Shaders\CFX3 Multiply Color.shader" />
     <None Include="Assets\FreeAssets\kenney_tooncharacters1\Male adventurer\Tilesheet\character_maleAdventurer_sheetHD.xml" />
+    <None Include="Assets\FreeAssets\JMO Assets\Cartoon FX\Shaders\CFXM_MobileParticleAdd_Alpha8.shader" />
     <None Include="Assets\FreeAssets\kenney_tooncharacters1\Female person\Tilesheet\character_femalePerson_sheet.xml" />
+    <None Include="Assets\FreeAssets\JMO Assets\Cartoon FX\CartoonFX Free.txt" />
     <None Include="Assets\FreeAssets\kenney_tooncharacters1\Male adventurer\Tilesheet\character_maleAdventurer_sheet.xml" />
     <None Include="Assets\FreeAssets\kenney_tooncharacters1\License.txt" />
+    <None Include="Assets\FreeAssets\JMO Assets\Cartoon FX Easy Editor\CartoonFX Easy Editor Readme.txt" />
     <None Include="Assets\FreeAssets\kenney_tooncharacters1\Female adventurer\Tilesheet\character_femaleAdventurer_sheetHD.xml" />
     <None Include="Assets\FreeAssets\kenney_tooncharacters1\Male person\Tilesheet\character_malePerson_sheet.xml" />
     <None Include="Assets\FreeAssets\kenney_tooncharacters1\Female person\Tilesheet\character_femalePerson_sheetHD.xml" />

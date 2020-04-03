@@ -8,6 +8,7 @@ TagManager:
   - MainGameManager
   - AttackCollision
   - floor
+  - FxTemporaire
   layers:
   - Default
   - TransparentFX

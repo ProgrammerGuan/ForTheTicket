@@ -198,15 +198,24 @@ public class Character
 
     public void AnimatorFrameStop()
     {
-        var HitStop = 1.0f / 60.0f;
-        Animator.speed = 0;
+        var HitStop = 0.1f;
         MainGame.StartCoroutine(ResumeAnimator(HitStop));
     }
 
     IEnumerator ResumeAnimator(float hitStop)
     {
         yield return new WaitForSeconds(hitStop);
+        var rigidbody = myGameObject.GetComponent<Rigidbody2D>();
+        Vector2 nowSpeed = rigidbody.velocity;
+        Debug.Log(Name + "ori velocity : " + nowSpeed);
+        rigidbody.velocity = Vector2.zero;
+        Debug.Log(Name + "time up velocity : " + rigidbody.velocity);
+        Animator.speed = 0;
+        yield return new WaitForSeconds(hitStop);
+        rigidbody.velocity = nowSpeed;
+        Debug.Log(Name + "reset velocity : " + nowSpeed);
         Animator.speed = 1;
+        
     }
 
     private IEnumerator SetKickRange()
