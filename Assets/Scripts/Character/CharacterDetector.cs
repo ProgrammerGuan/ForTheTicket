@@ -72,4 +72,13 @@ public class CharacterDetector : MonoBehaviour
         }
     }
 
+    //Kicked player -> MainGame Shake Camera
+    public void KickedPlayer(Collider2D collision)
+    {
+        if(collision.gameObject.tag == "Player")
+        {
+            MainGame.CameraShakeTrigger();
+        }
+    }
+
 }

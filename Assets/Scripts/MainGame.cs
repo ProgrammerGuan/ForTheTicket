@@ -20,6 +20,12 @@ public class MainGame : MonoBehaviour
     float sendTime = 0;
     float perTime = 0;
     ControlOrder nowOrder;
+
+    //Camera Shake
+    Vector3 shakeDir = Vector3.one * 0.1f;
+    float shakeTime = 1f;
+    float currentTime = 0;
+    float totalTime = 0;
     private void Awake()
     {
         Controller = new CharacterController();
@@ -39,6 +45,7 @@ public class MainGame : MonoBehaviour
         //client = new WsClient("ws://" + adrList[1].ToString() + ":4000");
 
         client.OnMessage = onMessage;
+
     }
 
     // Update is called once per frame
@@ -84,10 +91,43 @@ public class MainGame : MonoBehaviour
             if(Logined) UpdateMessage(msg);
         }
         if (startGameFlag) gameUi.UpdateTime();
+
+    }
+
+    public void CameraShakeTrigger()
+    {
+        totalTime = shakeTime;
+        currentTime = shakeTime;
+    }
+
+    public void CameraUpdateShake()
+    {
+        if (currentTime > 0 && totalTime > 0)
+        {
+            var percent = currentTime / totalTime;
+            var shakePos = Vector3.zero;
+
+            shakePos.x = UnityEngine.Random.Range(-Mathf.Abs(shakeDir.x) * percent, Mathf.Abs(shakeDir.x) * percent);
+            shakePos.y = UnityEngine.Random.Range(-Mathf.Abs(shakeDir.y) * percent, Mathf.Abs(shakeDir.y) * percent);
+            shakePos.z = Camera.main.transform.position.z + UnityEngine.Random.Range(-Mathf.Abs(shakeDir.z) * percent, Mathf.Abs(shakeDir.z) * percent);
+            Camera.main.transform.position = shakePos;
+            currentTime -= Time.deltaTime;
+        }
+        else
+        {
+            currentTime = 0f;
+            totalTime = 0f;
+        }
+    }
+
+    private void LateUpdate()
+    {
+        CameraUpdateShake();
     }
 
     public void MineGotDamage(string playerName, bool DamageForward)
     {
+        CameraShakeTrigger();
         var message = new PlayerGotDamageMessage();
         var data = new PlayerGotDamageData();
         data.Name = playerName;
