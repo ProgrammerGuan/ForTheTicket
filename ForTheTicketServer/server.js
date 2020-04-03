@@ -10,7 +10,7 @@ class Server{
         this.TicketX = 0
         this.TicketY = 0
         this.StartGame = false
-        this.GameTime = 120
+        this.GameTime = 120 + 3
         this.EndTime_M = 0
         this.EndTime_S = 0
     }

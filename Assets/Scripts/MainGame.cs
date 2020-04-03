@@ -128,6 +128,7 @@ public class MainGame : MonoBehaviour
     public void MineGotDamage(string playerName, bool DamageForward)
     {
         CameraShakeTrigger();
+        PlayerList[playerName].AnimatorFrameStop();
         var message = new PlayerGotDamageMessage();
         var data = new PlayerGotDamageData();
         data.Name = playerName;

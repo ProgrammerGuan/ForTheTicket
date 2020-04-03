@@ -75,9 +75,10 @@ public class CharacterDetector : MonoBehaviour
     //Kicked player -> MainGame Shake Camera
     public void KickedPlayer(Collider2D collision)
     {
-        if(collision.gameObject.tag == "Player")
+        if(collision.gameObject.tag == "Player"　&& myName == MainGame.myName)
         {
             MainGame.CameraShakeTrigger();
+            MainGame.PlayerList[myName].AnimatorFrameStop();
         }
     }
 

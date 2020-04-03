@@ -196,6 +196,19 @@ public class Character
         }
     }
 
+    public void AnimatorFrameStop()
+    {
+        var HitStop = 1.0f / 60.0f;
+        Animator.speed = 0;
+        MainGame.StartCoroutine(ResumeAnimator(HitStop));
+    }
+
+    IEnumerator ResumeAnimator(float hitStop)
+    {
+        yield return new WaitForSeconds(hitStop);
+        Animator.speed = 1;
+    }
+
     private IEnumerator SetKickRange()
     {
         yield return new WaitForSeconds(0.3f);
