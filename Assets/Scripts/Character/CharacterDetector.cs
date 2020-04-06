@@ -28,7 +28,8 @@ public class CharacterDetector : MonoBehaviour
             else
                 damageForward = false;
             DamageTime = Time.time + Parameters.DamageCoolDownTime;
-            MainGame.MineGotDamage(myName,damageForward);
+            var kickerName = collision.gameObject.transform.parent.name;
+            MainGame.MineGotDamage(myName,damageForward,kickerName);
         }
         else if (collision.gameObject.name == "Ticket" && !collision.gameObject.GetComponent<Ticket>().BeGetted)
         {

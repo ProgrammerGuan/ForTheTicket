@@ -128,7 +128,7 @@ public class GameUI
         totaltime = remainingTime;
     }
 
-    public void GameEnd(string winnerName, string characterName)
+    public void GameEnd(string winnerName, string characterName,int kickCnt)
     {
         StartButton.gameObject.SetActive(true);
         TimeCount.gameObject.SetActive(false);
@@ -141,6 +141,8 @@ public class GameUI
             showPlayer.name = "winnerModel";
             GameObject.Find(showPlayer.name).transform.SetParent(GameObject.Find("Winner").transform);
             GameObject.Find(showPlayer.name).transform.localPosition = Vector3.zero;
+            GameObject.Find("KickCount").GetComponent<Text>().text = kickCnt.ToString();
+            
         }
         else
         {

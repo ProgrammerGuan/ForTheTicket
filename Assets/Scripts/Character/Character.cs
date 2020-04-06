@@ -16,6 +16,7 @@ public class Character
     private bool HavingTicket;
     private IEnumerator updatePositionCoroutine;
     private bool CRisRunning;
+    public int kickCnt;
     public Character(MainGame mainGame,string name,string characterName)
     {
         Name = name;
@@ -30,6 +31,7 @@ public class Character
         HavingTicket = false;
         CRisRunning = false;
         CanMove = true;
+        kickCnt = 0;
     }
     public Transform transform => myGameObject.transform;
 

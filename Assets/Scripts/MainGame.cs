@@ -135,16 +135,19 @@ public class MainGame : MonoBehaviour
         CameraUpdateShake();
     }
 
-    public void MineGotDamage(string playerName, bool DamageForward)
+    public void MineGotDamage(string playerName, bool DamageForward,string kickPlayerName)
     {
+        if (playerName != myName) return;
         CameraShakeTrigger();
         PlayerList[playerName].AnimatorFrameStop();
         var message = new PlayerGotDamageMessage();
         var data = new PlayerGotDamageData();
         data.Name = playerName;
         data.GotDamageForward = DamageForward;
+        data.KickerName = kickPlayerName;
         message.Data = data;
         Send(Message.GotDamage,message);
+        Debug.Log(playerName + " got damage and send");
     }
 
     public void CreatPlayer(string playerName,string characterName,float x,float y,bool Turn,bool havingTicket)
@@ -207,12 +210,12 @@ public class MainGame : MonoBehaviour
         GameSetting(message);
     }
 
-    public void GameEnd(string winnerName)
+    public void GameEnd(string winnerName,int kickCnt)
     {
         startGameFlag = false;
-        //Debug.Log(winnerName + " win");
-        if(winnerName!= "N;O:N-E,") gameUi.GameEnd(winnerName,PlayerList[winnerName].CharacterName);
-        else gameUi.GameEnd(winnerName, "null");
+        Debug.Log(winnerName + " kick " + kickCnt + "times");
+        if (winnerName!= "N;O:N-E,") gameUi.GameEnd(winnerName,PlayerList[winnerName].CharacterName,kickCnt);
+        else gameUi.GameEnd(winnerName, "null",0);
     }
 
     void CreatTicket(bool fromPlayer, float x, float y)
@@ -321,7 +324,7 @@ public class MainGame : MonoBehaviour
                 break;
             case Message.GameEnd:
                 var GameEndMessage = JsonUtility.FromJson<GameEndMessage>(msg.Data);
-                GameEnd(GameEndMessage.Data.WinnerName);
+                GameEnd(GameEndMessage.Data.WinnerName,GameEndMessage.Data.KickCnt);
                 break;
             default:
                 //Debug.Log("unknowed msg");
@@ -379,6 +382,7 @@ class PlayerGotDamageData
 {
     public string Name;
     public bool GotDamageForward;
+    public string KickerName;
 }
 
 [Serializable]
@@ -478,4 +482,5 @@ public class GameEndMessage
 public struct GameEndData
 {
     public string WinnerName;
+    public int KickCnt;
 }

@@ -10,7 +10,7 @@ class Server{
         this.TicketX = 0
         this.TicketY = 0
         this.StartGame = false
-        this.GameTime = 120 + 3
+        this.GameTime = 120
         this.EndTime_M = 0
         this.EndTime_S = 0
     }
@@ -48,6 +48,7 @@ class Server{
                 this.clients[this.clients.indexOf(ws)].Character =  detailData.Data.Character
                 this.clients[this.clients.indexOf(ws)].HavingTicket = false
                 this.clients[this.clients.indexOf(ws)].Turn = false
+                this.clients[this.clients.indexOf(ws)].KickCnt = 0
                 var userList=[]
                 for(let c of this.clients){
                     var usersData={}
@@ -114,6 +115,7 @@ class Server{
                 case 'GotDamage':
                 for(let c of this.clients){
                     if(c.Name == detailData.Data.Name && c.HavingTicket) c.HavingTicket = false
+                    if(c.Name == detailData.Data.KickerName) c.KickCnt += 1
                 }
                 this.broadcast(ws,data);
                 break;
@@ -130,8 +132,8 @@ class Server{
                 break;
                 case 'StartGame':
                 var now = new Date()
-                this.EndTime_M = Number(now.getMinutes()) + 5
-                this.EndTime_S = Number(now.getSeconds())
+                this.EndTime_M = Number(now.getMinutes()) + 2
+                this.EndTime_S = Number(now.getSeconds()) + 3
                 p(`End at ${this.EndTime_M} : ${this.EndTime_S}`)
                 this.StartGame = true
                 this.GotFirstTicket = false
@@ -162,7 +164,7 @@ class Server{
                     Data : JSON.stringify({ Data: { PlayerData : userList, TicketData : bornticketData , RemainingTime : this.GameTime}})
                 }))
                 
-                setTimeout(this.timeCount.bind(this), this.GameTime*1000)
+                setTimeout(this.timeCount.bind(this), (this.GameTime+3)*1000)
                 break;
                 default:
                 this.broadcast(ws,data)
@@ -215,14 +217,18 @@ class Server{
         p(`time up`)
         this.StartGame = false
         var winnername = ""
+        var kickCnt = 0
         for(let c of this.clients){
-            if(c.HavingTicket) winnername = c.Name
+            if(c.HavingTicket) {
+                winnername = c.Name
+                kickCnt = c.KickCnt
+            }
         }
         if(winnername == "") winnername = "N;O:N-E,"
         this.broadcast(null,JSON.stringify({
             Type : 'GameEnd',
             Data : JSON.stringify({
-                Data : {WinnerName : winnername}
+                Data : {WinnerName : winnername,KickCnt : kickCnt}
             })
         }))
     }
