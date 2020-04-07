@@ -4,37 +4,47 @@ using UnityEngine;
 
 public class Character
 {
+    //ゲームマネージャー
     MainGame MainGame;
+    //このキャラクターのオブジェクト
     GameObject myGameObject;
+    //このキャラクターの資料
     public Animator Animator;
     CharacterDetector Detector;
     GameObject AttackRange;
+    public Transform transform => myGameObject.transform;
     string Name;
     public string CharacterName;
     public bool TurnFlag;
     public bool CanMove;
     private bool HavingTicket;
+    public int kickCnt;
+    //移動の計算
     private IEnumerator updatePositionCoroutine;
     private bool CRisRunning;
-    public int kickCnt;
     public Character(MainGame mainGame,string name,string characterName)
     {
+        //ゲームマネージャー設定
+        MainGame = mainGame;
+        
+        //キャラクターの資料設定
         Name = name;
         CharacterName = characterName;
         TurnFlag = false;
         myGameObject = GameObject.Find(Name);
         Animator = myGameObject.GetComponent<Animator>();
         Detector = myGameObject.GetComponent<CharacterDetector>();
-        MainGame = mainGame;
         AttackRange = myGameObject.transform.GetChild(0).gameObject;
         AttackRange.SetActive(false);
         HavingTicket = false;
-        CRisRunning = false;
         CanMove = true;
         kickCnt = 0;
+        //移動計算動く判断
+        CRisRunning = false;
+        
     }
-    public Transform transform => myGameObject.transform;
 
+    #region キャラクターのアクション
     public void Action(ControlOrder control, float x, float y, bool turn, bool fromServer, float vx)
     {
 
@@ -74,7 +84,6 @@ public class Character
         
     }
 
-
     private void Idle(float x,float y,bool turn)
     {
         if (!Animator.GetBool("Jump")) SetAnimation("Idle");
@@ -86,9 +95,6 @@ public class Character
     private void Jump()
     {
         SetAnimation("Jump");
-        //Debug.Log("Add force");
-        //Debug.Log(Name + " Jump");
-        //GameObject.Find(Name).GetComponent<Rigidbody2D>().velocity *= Vector2.right;
         var rigidbody = myGameObject.GetComponent<Rigidbody2D>();
         if (rigidbody.velocity.y > 0) rigidbody.velocity = new Vector2(rigidbody.velocity.x,0);
         rigidbody.AddForce(Vector2.up * Parameters.JumpHeight, ForceMode2D.Impulse);
@@ -96,10 +102,8 @@ public class Character
 
     public void EndJump()
     {
-        //Debug.Log("End Jump");
         SetAnimation("Idle");
     }
-
 
     private void Kick()
     {
@@ -120,24 +124,7 @@ public class Character
         MainGame.StartCoroutine(SetKickRange());
     }
 
-
-
-    private void SetAnimation(string action)
-    {
-        if (!Animator.GetBool(action))
-        {
-            Animator.SetBool("Kick", (action == "Kick") ? true : false);
-            Animator.SetBool("Jump", (action == "Jump") ? true : false);
-            Animator.SetBool("Walk", (action == "Walk") ? true : false);
-            Animator.SetBool("Idle", (action == "Idle") ? true : false);
-            //Debug.Log(Name + " Animation Set" + action);
-            //Debug.Log("Idle is " + Animator.GetBool("Idle"));
-            //Debug.Log("Jump is " + Animator.GetBool("Jump"));
-        }
-            
-    }
-
-    private void Move(float x,float y,float vx)
+    private void Move(float x, float y, float vx)
     {
         Move(x, y);
         if (CRisRunning)
@@ -154,7 +141,7 @@ public class Character
         if (!Animator.GetBool("Jump"))
             SetAnimation("Walk");
         if (CanMove) myGameObject.transform.position = new Vector3(x, y, 0);
-            
+
     }
 
     public void Turn(string turnTo)
@@ -170,20 +157,20 @@ public class Character
                 TurnFlag = true;
                 break;
         }
-        
+
     }
 
-    private IEnumerator SetAction(string action,float time)
+    private IEnumerator SetAction(string action, float time)
     {
         SetAnimation(action);
         yield return new WaitForSeconds(time);
         Animator.SetBool(action, false);
-        MainGame.StopCoroutine(SetAction(action,time));
+        MainGame.StopCoroutine(SetAction(action, time));
     }
 
     public void GotDamage(bool GotDamageForward)
     {
-        if(MainGame.myName == Name) Parameters.DamageTime = Time.time;
+        if (MainGame.myName == Name) Parameters.DamageTime = Time.time;
         //Right side got damage
         if (GotDamageForward) Turn("right");
         else Turn("left");  // Left side got damage
@@ -193,9 +180,24 @@ public class Character
         else myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.right * Parameters.GotDamageDistance;
         if (HavingTicket)
         {
-            MainGame.FallTicket(Name,myGameObject.transform.position.x, myGameObject.transform.position.y + 1);
+            MainGame.FallTicket(Name, myGameObject.transform.position.x, myGameObject.transform.position.y + 1);
             HaveTicket(false);
         }
+    }
+
+    #endregion
+
+    #region アニメ
+    private void SetAnimation(string action)
+    {
+        if (!Animator.GetBool(action))
+        {
+            Animator.SetBool("Kick", (action == "Kick") ? true : false);
+            Animator.SetBool("Jump", (action == "Jump") ? true : false);
+            Animator.SetBool("Walk", (action == "Walk") ? true : false);
+            Animator.SetBool("Idle", (action == "Idle") ? true : false);
+        }
+            
     }
 
     public void AnimatorFrameStop()
@@ -219,7 +221,9 @@ public class Character
         Animator.speed = 1;
         
     }
+    #endregion
 
+    #region キャラクターの資料
     private IEnumerator SetKickRange()
     {
         yield return new WaitForSeconds(0.3f);
@@ -243,12 +247,10 @@ public class Character
         int cnt = 0;
         while(cnt < Parameters.SendDistance)
         {
-            //Debug.Log("vx is " + vx);
-            //Debug.Log("update " + UpdatePoCnt + " - " + cnt);
             if (CanMove) myGameObject.transform.position += new Vector3(vx * 0.001f, 0, 0);
             cnt++;
             yield return new WaitForSeconds(0.001f);
         }
     }
-
+    #endregion
 }

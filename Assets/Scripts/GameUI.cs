@@ -4,18 +4,22 @@ using UnityEngine;
 using UnityEngine.UI;
 public class GameUI
 {
+    MainGame MainGame;
+
     string selectCharacter;
     Button LoginButton;
     Button StartButton;
+    GameObject SelectCharacterText;
     List<Button> CharacterBtns;
+
     GameObject WinnerMessage;
     Button ExitWinMessageBtn;
+
     GameObject LoginFailMessage;
     Button ExitLoginFailBtn;
-    GameObject SelectCharacterText;
+
     Text TimeCount;
     Text ReadyCount;
-    MainGame MainGame;
     Dictionary<string,GameObject> PlayerNames;
     Camera UiCamera;
     float totaltime;
@@ -24,30 +28,62 @@ public class GameUI
     {
         MainGame = game;
         UiCamera = GameObject.Find("UiCamera").GetComponent<Camera>();
+        SettingLoginButton();
+        SettingLoginFailMessage();
+        SettingStartButton();
+        SettingTimeCounter();
+        SettingWinMessage();
+        SettingSelectCharacter();
+    }
+
+    #region PreSetting
+    void SettingLoginButton()
+    {
         LoginButton = GameObject.Find("LoginButton").GetComponent<Button>();
         LoginButton.onClick.AddListener(Login);
+    }
+
+    void SettingLoginFailMessage()
+    {
         ExitLoginFailBtn = GameObject.Find("ExitLoginFailButton").GetComponent<Button>();
         ExitLoginFailBtn.onClick.AddListener(delegate { SetLoginFailMessage(false); });
         LoginFailMessage = GameObject.Find("LoginFailMessage");
         LoginFailMessage.SetActive(false);
+    }
+
+    void SettingStartButton()
+    {
         StartButton = GameObject.Find("StartBtn").GetComponent<Button>();
         StartButton.onClick.AddListener(delegate { MainGame.StartGame(); });
         StartButton.gameObject.SetActive(false);
+    }
+
+    void SettingTimeCounter()
+    {
         TimeCount = GameObject.Find("TimeCount").GetComponent<Text>();
         TimeCount.gameObject.SetActive(false);
         ReadyCount = GameObject.Find("ReadyCount").GetComponent<Text>();
         ReadyCount.gameObject.SetActive(false);
+    }
+
+    void SettingWinMessage()
+    {
         ExitWinMessageBtn = GameObject.Find("ExitWinMessageButton").GetComponent<Button>();
         ExitWinMessageBtn.onClick.AddListener(delegate { ExitWinMessage(); });
         WinnerMessage = GameObject.Find("WinnerMessage");
         WinnerMessage.SetActive(false);
+    }
+
+    void SettingSelectCharacter()
+    {
         SelectCharacterText = GameObject.Find("SelectCharacterText");
         CharacterBtns = new List<Button>();
         InitialCharacterBtns();
         PlayerNames = new Dictionary<string, GameObject>();
         selectCharacter = "youngman";
-        totaltime = 300;
     }
+    #endregion
+
     void Login()
     {
         SetLoginFailMessage(false);

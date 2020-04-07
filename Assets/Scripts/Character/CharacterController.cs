@@ -14,11 +14,6 @@ public enum ControlOrder
 
 public class CharacterController
 {
-    public CharacterController()
-    {
- 
-    }
-
     public ControlOrder GetControl()
     {
         if (Do("action"))
@@ -40,8 +35,6 @@ public class CharacterController
     {
         switch (action)
         {
-            //case "jump":
-            //    return Time.time - Parameters.JumpTime > Parameters.JumpCoolDownTime;
             case "action":
                 return Time.time - Parameters.ActionTime > Parameters.KickCoolDownTime && Time.time - Parameters.DamageTime > Parameters.DamageCoolDownTime;
             default:

@@ -6,12 +6,17 @@ using UnityEngine;
 //using UnityEngine.UI;
 public class MainGame : MonoBehaviour
 {
-    public GameObject prefab;
+    // 自分のコントロール
     CharacterController Controller;
+    //  UI
     GameUI gameUi;
+    //　プレイヤーの名前対キャラクター
     public Dictionary<string, Character> PlayerList;
+    //自分のキャラクターの資料
     Vector3 myPos;
     public string myName;
+
+    //　Server
     bool Logined;
     bool startGameFlag;
     WsClient client;
@@ -53,39 +58,7 @@ public class MainGame : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (PlayerList.Count > 0)
-        {
-            var ctrl = Controller.GetControl();
-            if (ctrl != ControlOrder.None)
-            {
-                if (ctrl != ControlOrder.Idle) sendIdle = true;                
-                if (ctrl != ControlOrder.Kick)
-                    PlayerList[myName].Action(ctrl, PlayerList[myName].transform.position.x, PlayerList[myName].transform.position.y,false,false, Parameters.MoveSpeed);
-                if(ctrl == ControlOrder.Kick || sendIdle ||
-                    myPos.x != PlayerList[myName].transform.position.x)
-                {
-                    if (sendIdle && ctrl==ControlOrder.Idle) sendIdle = false;
-                    var actMessage = new PlayerActionMessage();
-                    var act = new PlayerAction();
-                    act.Name = myName;
-                    act.Control = ctrl;
-                    act.X = PlayerList[myName].transform.position.x;
-                    act.Y = PlayerList[myName].transform.position.y;
-                    act.Turn = PlayerList[myName].TurnFlag;
-                    act.Vx = Parameters.Vx * (act.Turn? -1 : 1);
-                    actMessage.Data = act;
-                    if (Time.time > sendTime || (ctrl!=ControlOrder.moveLeft && ctrl != ControlOrder.moveRight) || nowOrder!=ctrl)
-                    {
-                        Send(Message.Act, actMessage);
-                        sendTime = Time.time + Time.deltaTime * Parameters.SendDistance;
-                        perTime = (sendTime - Time.time) / Parameters.SendDistance;
-                    }
-                    myPos = PlayerList[myName].transform.position;
-                }
-                nowOrder = ctrl;
-            }
-
-        }
+        ControlAndSendToServer();
         gameUi.UpdatePlayerNameLocation(PlayerList);
         if (messages.Count > 0)
         {
@@ -95,6 +68,11 @@ public class MainGame : MonoBehaviour
         if (startGameFlag) gameUi.UpdateTime();
 
     }
+    private void LateUpdate()
+    {
+        CameraUpdateShake();
+    }
+    #region CameraShake
 
     public void CameraShakeTrigger()
     {
@@ -130,12 +108,42 @@ public class MainGame : MonoBehaviour
         resetCameraFlag = false;
     }
 
-    private void LateUpdate()
+    #endregion
+    #region Character
+    public void ControlAndSendToServer()
     {
-        CameraUpdateShake();
+        if (PlayerList.Count <= 0) return;
+        var ctrl = Controller.GetControl();
+        if (ctrl != ControlOrder.None)
+        {
+            if (ctrl != ControlOrder.Idle) sendIdle = true;
+            if (ctrl != ControlOrder.Kick)
+                PlayerList[myName].Action(ctrl, PlayerList[myName].transform.position.x, PlayerList[myName].transform.position.y, false, false, Parameters.MoveSpeed);
+            if (ctrl == ControlOrder.Kick || sendIdle ||
+                myPos.x != PlayerList[myName].transform.position.x)
+            {
+                if (sendIdle && ctrl == ControlOrder.Idle) sendIdle = false;
+                var actMessage = new PlayerActionMessage();
+                var act = new PlayerAction();
+                act.Name = myName;
+                act.Control = ctrl;
+                act.X = PlayerList[myName].transform.position.x;
+                act.Y = PlayerList[myName].transform.position.y;
+                act.Turn = PlayerList[myName].TurnFlag;
+                act.Vx = Parameters.Vx * (act.Turn ? -1 : 1);
+                actMessage.Data = act;
+                if (Time.time > sendTime || (ctrl != ControlOrder.moveLeft && ctrl != ControlOrder.moveRight) || nowOrder != ctrl)
+                {
+                    Send(Message.Act, actMessage);
+                    sendTime = Time.time + Time.deltaTime * Parameters.SendDistance;
+                    perTime = (sendTime - Time.time) / Parameters.SendDistance;
+                }
+                myPos = PlayerList[myName].transform.position;
+            }
+            nowOrder = ctrl;
+        }
     }
-
-    public void MineGotDamage(string playerName, bool DamageForward,string kickPlayerName)
+    public void MineGotDamage(string playerName, bool DamageForward, string kickPlayerName)
     {
         if (playerName != myName) return;
         CameraShakeTrigger();
@@ -146,10 +154,11 @@ public class MainGame : MonoBehaviour
         data.GotDamageForward = DamageForward;
         data.KickerName = kickPlayerName;
         message.Data = data;
-        Send(Message.GotDamage,message);
+        Send(Message.GotDamage, message);
         Debug.Log(playerName + " got damage and send");
     }
-
+    #endregion
+    #region GameSetting
     public void CreatPlayer(string playerName,string characterName,float x,float y,bool Turn,bool havingTicket)
     {
         var newplayer = Instantiate(Resources.Load(string.Format("Prefabs/{0}", characterName)), new Vector3(x,y,0), Quaternion.identity);
@@ -160,7 +169,6 @@ public class MainGame : MonoBehaviour
         Character.HaveTicket(havingTicket);
         gameUi.AddPlayerName(playerName);
     }
-
     public void Login(string name,string character)
     {
         Logined = true;
@@ -175,12 +183,10 @@ public class MainGame : MonoBehaviour
         data.Data = Data;
         Send(Message.Login, data);
     }
-
     public void StartGame()
     {
         Send(Message.StartGame, null);
     }
-
     public void GameSetting(GameSettingMessage message)
     {
         startGameFlag = true;
@@ -197,7 +203,6 @@ public class MainGame : MonoBehaviour
         Destroy(GameObject.Find("Ticket"));
         CreatTicket(message.Data.TicketData.FromPlayer, message.Data.TicketData.X, message.Data.TicketData.Y);
     }
-
     IEnumerator ReadyToStart(GameSettingMessage message)
     {
         gameUi.StartGame(message.Data.RemainingTime);
@@ -209,7 +214,6 @@ public class MainGame : MonoBehaviour
         gameUi.CloseReadyCount();
         GameSetting(message);
     }
-
     public void GameEnd(string winnerName,int kickCnt)
     {
         startGameFlag = false;
@@ -217,15 +221,13 @@ public class MainGame : MonoBehaviour
         if (winnerName!= "N;O:N-E,") gameUi.GameEnd(winnerName,PlayerList[winnerName].CharacterName,kickCnt);
         else gameUi.GameEnd(winnerName, "null",0);
     }
-
     void CreatTicket(bool fromPlayer, float x, float y)
     {
         var ticket = Instantiate(Resources.Load("Prefabs/Ticket"), new Vector3(x, y, 0), Quaternion.identity);
         ticket.name = "Ticket";
         if (fromPlayer) GameObject.Find("Ticket").GetComponent<Rigidbody2D>().velocity = Vector3.up * Parameters.FallTicketHeight;
     }
-
-    public void FallTicket(string playerName,float x,float y)
+    public void FallTicket(string playerName, float x, float y)
     {
         if (playerName != myName) return;
         var creatTicketMessage = new BronTicketMessage();
@@ -236,7 +238,6 @@ public class MainGame : MonoBehaviour
         creatTicketMessage.Data = creatTicketData;
         Send(Message.BornTicket, creatTicketMessage);
     }
-
     public void GetTicket(string name)
     {
         var getTicketMessage = new GetTicketMessage();
@@ -245,7 +246,8 @@ public class MainGame : MonoBehaviour
         getTicketMessage.Data = getTicketData;
         Send(Message.GetTicket, getTicketMessage);
     }
-
+    #endregion
+    #region Message
     void onMessage(Message msg)
     {
         messages.Push(msg);
@@ -333,10 +335,10 @@ public class MainGame : MonoBehaviour
         }
         
     }
-
+    #endregion
 }
 
-
+#region ServerMessageType
 public partial struct Message
 {
     public const string Login = "Login";
@@ -484,3 +486,4 @@ public struct GameEndData
     public string WinnerName;
     public int KickCnt;
 }
+#endregion
