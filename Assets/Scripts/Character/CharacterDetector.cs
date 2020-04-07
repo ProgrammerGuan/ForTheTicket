@@ -90,10 +90,13 @@ public class CharacterDetector : MonoBehaviour
     //Skill on floor
     public void SkillAttack(Collider2D collision)
     {
-
         if (collision.gameObject.tag == "floor")
         {
+            
             MainGame.CameraShakeTrigger(Parameters.SkillShakeTime,Parameters.SkillShakeRange);
+            gameObject.GetComponent<Rigidbody2D>().gravityScale = 1;
+            transform.GetChild(7).gameObject.SetActive(false);
+            print(transform.GetChild(7).name);
         }
     }
 

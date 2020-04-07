@@ -100,7 +100,7 @@ public class Character
         var rigidbody = myGameObject.GetComponent<Rigidbody2D>();
         rigidbody.gravityScale = 0;
         rigidbody.velocity = 2 * d;
-        while(myGameObject.transform.position.y < goalPos.y)
+        while(myGameObject.transform.position.y < goalPos.y && rigidbody.velocity != Vector2.zero)
         {
             yield return new WaitForSeconds(0.01f);
         }
