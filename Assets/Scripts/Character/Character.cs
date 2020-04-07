@@ -79,9 +79,34 @@ public class Character
                 if(fromServer) Idle(x, y, turn);
                 else Idle(x, y,TurnFlag);
                 break;
+            case ControlOrder.Skill:
+                Skill();
+                break;
             }
         
         
+    }
+
+    private void Skill()
+    {
+        Animator.SetTrigger("Skill");
+        MainGame.StartCoroutine(SkillMove());
+    }
+
+    IEnumerator SkillMove()
+    {
+        var d = Vector3.up * 2;
+        var goalPos = myGameObject.transform.position + d;
+        var rigidbody = myGameObject.GetComponent<Rigidbody2D>();
+        rigidbody.gravityScale = 0;
+        rigidbody.velocity = 2 * d;
+        while(myGameObject.transform.position.y < goalPos.y)
+        {
+            yield return new WaitForSeconds(0.01f);
+        }
+        rigidbody.velocity = Vector2.zero;
+        yield return new WaitForSeconds(1.4f);
+        rigidbody.gravityScale = 1;
     }
 
     private void Idle(float x,float y,bool turn)
@@ -170,7 +195,7 @@ public class Character
 
     public void GotDamage(bool GotDamageForward)
     {
-        if (MainGame.myName == Name) Parameters.DamageTime = Time.time;
+        if (MainGame.myName == Name) Parameters.DamageTime = Time.time + Parameters.DamageCoolDownTime;
         //Right side got damage
         if (GotDamageForward) Turn("right");
         else Turn("left");  // Left side got damage

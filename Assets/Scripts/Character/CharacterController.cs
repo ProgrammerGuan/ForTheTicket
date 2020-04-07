@@ -10,6 +10,7 @@ public enum ControlOrder
     Kick,
     Idle,
     None,
+    Skill,
 }
 
 public class CharacterController
@@ -20,8 +21,13 @@ public class CharacterController
         {
             if (Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.K))
             {
-                Parameters.ActionTime = Time.time;
+                Parameters.ActionTime = Time.time + Parameters.KickCoolDownTime;
                 return ControlOrder.Kick;
+            }
+            else if (Input.GetKeyDown(KeyCode.Space))
+            {
+                Parameters.ActionTime = Time.time + Parameters.SkillTime;
+                return ControlOrder.Skill;
             }
             else if (Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.J)) return ControlOrder.Jump;
             else if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) return ControlOrder.moveLeft;
@@ -36,7 +42,8 @@ public class CharacterController
         switch (action)
         {
             case "action":
-                return Time.time - Parameters.ActionTime > Parameters.KickCoolDownTime && Time.time - Parameters.DamageTime > Parameters.DamageCoolDownTime;
+                return Time.time > Parameters.ActionTime && 
+                    Time.time > Parameters.DamageTime;
             default:
                 return false;
         }

@@ -79,11 +79,21 @@ public class CharacterDetector : MonoBehaviour
     {
         if(collision.gameObject.tag == "Player")
         {
-            if(myName == MainGame.myName) MainGame.CameraShakeTrigger();
+            if(myName == MainGame.myName) MainGame.CameraShakeTrigger(Parameters.KickShakeTime,Parameters.KickShakeRange);
             MainGame.PlayerList[myName].AnimatorFrameStop();
             // Effect
             var kickEffect = Instantiate(Resources.Load("Prefabs/KICKEFFECT"), gameObject.transform.GetChild(0).transform.position, Quaternion.identity);
             Debug.Log("Kick Effect : " + kickEffect.name);
+        }
+    }
+
+    //Skill on floor
+    public void SkillAttack(Collider2D collision)
+    {
+
+        if (collision.gameObject.tag == "floor")
+        {
+            MainGame.CameraShakeTrigger(Parameters.SkillShakeTime,Parameters.SkillShakeRange);
         }
     }
 

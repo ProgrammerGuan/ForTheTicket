@@ -28,8 +28,7 @@ public class MainGame : MonoBehaviour
 
     //Camera Shake
     Vector3 cameraOriPos;
-    Vector3 shakeDir = Vector3.one * 0.1f;
-    float shakeTime = 1f;
+    Vector3 shakeDir;
     float currentTime = 0;
     float totalTime = 0;
     bool resetCameraFlag = false;
@@ -74,10 +73,11 @@ public class MainGame : MonoBehaviour
     }
     #region CameraShake
 
-    public void CameraShakeTrigger()
+    public void CameraShakeTrigger(float time,float range)
     {
-        totalTime = shakeTime;
-        currentTime = shakeTime;
+        totalTime = time;
+        currentTime = time;
+        shakeDir = Vector3.one * range;
         resetCameraFlag = true;
     }
 
@@ -146,7 +146,7 @@ public class MainGame : MonoBehaviour
     public void MineGotDamage(string playerName, bool DamageForward, string kickPlayerName)
     {
         if (playerName != myName) return;
-        CameraShakeTrigger();
+        CameraShakeTrigger(Parameters.KickShakeTime,Parameters.KickShakeRange);
         PlayerList[playerName].AnimatorFrameStop();
         var message = new PlayerGotDamageMessage();
         var data = new PlayerGotDamageData();
