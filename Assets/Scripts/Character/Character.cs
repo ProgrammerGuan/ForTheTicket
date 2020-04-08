@@ -45,6 +45,7 @@ public class Character
         HavingSkillEffect = myGameObject.transform.GetChild(4).gameObject;
         SkillStartEffect = myGameObject.transform.GetChild(5).gameObject;
         ExplosionEffect = myGameObject.transform.GetChild(6).gameObject;
+
         //移動計算動く判断
         CRisRunning = false;
         
@@ -217,7 +218,7 @@ public class Character
     public void GotDamage(bool GotDamageForward,bool skillDamage)
     {
         var damageCoolDownTime = Parameters.DamageCoolDownTime;
-        if (skillDamage) damageCoolDownTime *= 3;
+        if (skillDamage) damageCoolDownTime *= 2;
         if (MainGame.myName == Name) Parameters.DamageTime = Time.time + damageCoolDownTime;
         //Right side got damage
         if (GotDamageForward) Turn("right");
@@ -227,8 +228,11 @@ public class Character
         var distanceScale = 1f;
         if (skillDamage) distanceScale = 3f;
         var distance = Parameters.GotDamageDistance * distanceScale;
-        if (GotDamageForward) myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.left * distance;
-        else myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.right * distance;
+        var backdir = Vector2.zero;
+        if (GotDamageForward) backdir = Vector2.left * distance;
+        else backdir = Vector2.right * distance;
+        if (skillDamage) backdir += Vector2.up*10;
+        myGameObject.GetComponent<Rigidbody2D>().velocity = backdir;
         if (HavingTicket)
         {
             MainGame.FallTicket(Name, myGameObject.transform.position.x, myGameObject.transform.position.y + 1);

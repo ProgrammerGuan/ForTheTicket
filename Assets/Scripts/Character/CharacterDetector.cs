@@ -75,12 +75,8 @@ public class CharacterDetector : MonoBehaviour
     //FromtのObjectで使う
     public void CanMove(Collider2D collision)
     {
-        //Debug.Log(collision.gameObject.tag);
-
         if (collision.gameObject.layer == 8 || collision.gameObject.tag == "Player") // layer 8 is Stage
         {
-            //Debug.Log("can move");
-
             MainGame.PlayerList[myName].CanMove = true;
         }
     }
