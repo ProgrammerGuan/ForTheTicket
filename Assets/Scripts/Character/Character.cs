@@ -119,12 +119,15 @@ public class Character
         myGameObject.transform.GetChild(7).gameObject.SetActive(true);
     }
 
-    public IEnumerator SkillExplosion()
+    public IEnumerator SkillExplosion(GameObject skillRange)
     {
+        skillRange.SetActive(true);
         ExplosionEffect.SetActive(true);
         SkillStartEffect.SetActive(false);
         yield return new WaitForSeconds(1f);
         ExplosionEffect.SetActive(false);
+        skillRange.SetActive(false);
+        Debug.Log("skill range false");
     }
 
     private void Idle(float x,float y,bool turn)
@@ -211,16 +214,21 @@ public class Character
         MainGame.StopCoroutine(SetAction(action, time));
     }
 
-    public void GotDamage(bool GotDamageForward)
+    public void GotDamage(bool GotDamageForward,bool skillDamage)
     {
-        if (MainGame.myName == Name) Parameters.DamageTime = Time.time + Parameters.DamageCoolDownTime;
+        var damageCoolDownTime = Parameters.DamageCoolDownTime;
+        if (skillDamage) damageCoolDownTime *= 3;
+        if (MainGame.myName == Name) Parameters.DamageTime = Time.time + damageCoolDownTime;
         //Right side got damage
         if (GotDamageForward) Turn("right");
         else Turn("left");  // Left side got damage
         SetAnimation("GotDamage");
         Animator.SetTrigger("GotDamage");
-        if (GotDamageForward) myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.left * Parameters.GotDamageDistance;
-        else myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.right * Parameters.GotDamageDistance;
+        var distanceScale = 1f;
+        if (skillDamage) distanceScale = 3f;
+        var distance = Parameters.GotDamageDistance * distanceScale;
+        if (GotDamageForward) myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.left * distance;
+        else myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.right * distance;
         if (HavingTicket)
         {
             MainGame.FallTicket(Name, myGameObject.transform.position.x, myGameObject.transform.position.y + 1);

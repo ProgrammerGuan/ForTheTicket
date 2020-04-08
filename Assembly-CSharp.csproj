@@ -77,6 +77,7 @@
     <Compile Include="Assets\Scripts\Character\Sensor.cs" />
     <Compile Include="Assets\Scripts\GameUI.cs" />
     <Compile Include="Assets\Scripts\MainGame.cs" />
+    <Compile Include="Assets\Scripts\SkillRange.cs" />
     <Compile Include="Assets\Scripts\Ticket.cs" />
     <Compile Include="Assets\Scripts\WsClient.cs" />
     <None Include="Assets\FreeAssets\JMO Assets\Cartoon FX\Shaders\CFX3 Multiply Color.shader" />

@@ -139,7 +139,7 @@ public class MainGame : MonoBehaviour
             nowOrder = ctrl;
         }
     }
-    public void MineGotDamage(string playerName, bool DamageForward, string kickPlayerName)
+    public void MineGotDamage(string playerName, bool DamageForward, string kickPlayerName, bool skill)
     {
         if (playerName != myName) return;
         CameraShakeTrigger(Parameters.KickShakeTime,Parameters.KickShakeRange);
@@ -149,6 +149,7 @@ public class MainGame : MonoBehaviour
         data.Name = playerName;
         data.GotDamageForward = DamageForward;
         data.KickerName = kickPlayerName;
+        data.Skill = skill;
         message.Data = data;
         Send(Message.GotDamage, message);
         Debug.Log(playerName + " got damage and send");
@@ -296,7 +297,7 @@ public class MainGame : MonoBehaviour
                 break;
             case Message.GotDamage:
                 var DamageData = JsonUtility.FromJson<PlayerGotDamageMessage>(msg.Data);
-                PlayerList[DamageData.Data.Name].GotDamage(DamageData.Data.GotDamageForward);
+                PlayerList[DamageData.Data.Name].GotDamage(DamageData.Data.GotDamageForward,DamageData.Data.Skill);
                 break;
             case Message.BornTicket:
                 var BornTicketData = JsonUtility.FromJson<BronTicketMessage>(msg.Data);
@@ -380,6 +381,7 @@ class PlayerGotDamageData
     public string Name;
     public bool GotDamageForward;
     public string KickerName;
+    public bool Skill;
 }
 
 [Serializable]

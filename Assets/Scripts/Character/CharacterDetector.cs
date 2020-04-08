@@ -23,13 +23,24 @@ public class CharacterDetector : MonoBehaviour
         {
             var damageForward = true;
             Debug.Log(myName + " GetDamage");
-            if (collision.transform.position.x> gameObject.transform.position.x)
-                damageForward = true;
-            else
-                damageForward = false;
+            if (collision.transform.position.x> gameObject.transform.position.x)　damageForward = true;
+            else　damageForward = false;
             DamageTime = Time.time + Parameters.DamageCoolDownTime;
             var kickerName = collision.gameObject.transform.parent.name;
-            MainGame.MineGotDamage(myName,damageForward,kickerName);
+            MainGame.MineGotDamage(myName,damageForward,kickerName,false);// false is not skill damage
+        }
+        else if(collision.tag == "SkillAttackCollision" && usefulDamage)
+        {
+            var skillRangeData = collision.gameObject.GetComponent<SkillRange>();
+            if (myName == skillRangeData.SkillUser) return;
+            var damageForward = true;
+            print(myName + " SkillDamage");
+            var CenterPosX = skillRangeData.SkillPosX;
+            if (CenterPosX > gameObject.transform.position.x) damageForward = true;
+            else damageForward = false;
+            DamageTime = Time.time + Parameters.DamageCoolDownTime;
+            var kickerName = collision.gameObject.transform.parent.name;
+            MainGame.MineGotDamage(myName, damageForward, kickerName, true);//true is skill damage
         }
         else if (collision.gameObject.name == "Ticket" && !collision.gameObject.GetComponent<Ticket>().BeGetted)
         {
@@ -95,7 +106,12 @@ public class CharacterDetector : MonoBehaviour
             MainGame.CameraShakeTrigger(Parameters.SkillShakeTime,Parameters.SkillShakeRange);
             gameObject.GetComponent<Rigidbody2D>().gravityScale = 1;
             transform.GetChild(7).gameObject.SetActive(false);
-            MainGame.StartCoroutine(MainGame.PlayerList[myName].SkillExplosion());
+            var SkillRange = collision.transform.GetChild(0).gameObject;
+            print("Skill range poxX : " + SkillRange.GetComponent<SkillRange>().SkillPosX);
+            MainGame.StartCoroutine(MainGame.PlayerList[myName].SkillExplosion(SkillRange));
+            var skillRange = SkillRange.GetComponent<SkillRange>();
+            skillRange.SkillPosX = gameObject.transform.position.x;
+            skillRange.SkillUser = myName;
         }
     }
 
