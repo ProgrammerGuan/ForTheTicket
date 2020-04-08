@@ -92,11 +92,10 @@ public class CharacterDetector : MonoBehaviour
     {
         if (collision.gameObject.tag == "floor")
         {
-            
             MainGame.CameraShakeTrigger(Parameters.SkillShakeTime,Parameters.SkillShakeRange);
             gameObject.GetComponent<Rigidbody2D>().gravityScale = 1;
             transform.GetChild(7).gameObject.SetActive(false);
-            print(transform.GetChild(7).name);
+            MainGame.StartCoroutine(MainGame.PlayerList[myName].SkillExplosion());
         }
     }
 

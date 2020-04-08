@@ -72,7 +72,6 @@ public class MainGame : MonoBehaviour
         CameraUpdateShake();
     }
     #region CameraShake
-
     public void CameraShakeTrigger(float time,float range)
     {
         totalTime = time;
@@ -80,7 +79,6 @@ public class MainGame : MonoBehaviour
         shakeDir = Vector3.one * range;
         resetCameraFlag = true;
     }
-
     public void CameraUpdateShake()
     {
         if (currentTime > 0 && totalTime > 0)
@@ -101,13 +99,11 @@ public class MainGame : MonoBehaviour
             totalTime = 0f;
         }
     }
-
     private void ResetCamera()
     {
         Camera.main.transform.position = cameraOriPos;
         resetCameraFlag = false;
     }
-
     #endregion
     #region Character
     public void ControlAndSendToServer()
@@ -301,7 +297,6 @@ public class MainGame : MonoBehaviour
             case Message.GotDamage:
                 var DamageData = JsonUtility.FromJson<PlayerGotDamageMessage>(msg.Data);
                 PlayerList[DamageData.Data.Name].GotDamage(DamageData.Data.GotDamageForward);
-                //Debug.Log(DamageData.Data.Name + " Got damage in MainGame");
                 break;
             case Message.BornTicket:
                 var BornTicketData = JsonUtility.FromJson<BronTicketMessage>(msg.Data);

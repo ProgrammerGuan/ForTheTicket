@@ -19,6 +19,9 @@ public class Character
     public bool CanMove;
     private bool HavingTicket;
     public int kickCnt;
+    public GameObject HavingSkillEffect;
+    public GameObject SkillStartEffect;
+    public GameObject ExplosionEffect;
     //移動の計算
     private IEnumerator updatePositionCoroutine;
     private bool CRisRunning;
@@ -39,6 +42,9 @@ public class Character
         HavingTicket = false;
         CanMove = true;
         kickCnt = 0;
+        HavingSkillEffect = myGameObject.transform.GetChild(4).gameObject;
+        SkillStartEffect = myGameObject.transform.GetChild(5).gameObject;
+        ExplosionEffect = myGameObject.transform.GetChild(6).gameObject;
         //移動計算動く判断
         CRisRunning = false;
         
@@ -105,8 +111,20 @@ public class Character
             yield return new WaitForSeconds(0.01f);
         }
         rigidbody.velocity = Vector2.zero;
+        HavingSkillEffect.SetActive(false);
+        SkillStartEffect.SetActive(true);
         yield return new WaitForSeconds(1.4f);
         rigidbody.gravityScale = 1;
+        yield return new WaitForSeconds(0.4f);
+        myGameObject.transform.GetChild(7).gameObject.SetActive(true);
+    }
+
+    public IEnumerator SkillExplosion()
+    {
+        ExplosionEffect.SetActive(true);
+        SkillStartEffect.SetActive(false);
+        yield return new WaitForSeconds(1f);
+        ExplosionEffect.SetActive(false);
     }
 
     private void Idle(float x,float y,bool turn)
