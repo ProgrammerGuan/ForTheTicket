@@ -44,7 +44,8 @@ public class MainGame : MonoBehaviour
     void Start()
     {
         //192.168.8.53 クァンのIP
-        client = new WsClient("ws://192.168.8.53:4000");
+        //192.168.11.17 クァンのパソコンip
+        client = new WsClient("ws://192.168.11.17:4000");
 
         //string hostname = Dns.GetHostName();
         //IPAddress[] adrList = Dns.GetHostAddresses(hostname);
