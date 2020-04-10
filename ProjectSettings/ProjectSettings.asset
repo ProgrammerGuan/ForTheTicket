@@ -591,10 +591,10 @@ PlayerSettings:
   facebookXfbml: 0
   facebookFrictionlessRequests: 1
   apiCompatibilityLevel: 6
-  cloudProjectId: 112733a8-522d-46d0-9a21-944115254d54
+  cloudProjectId: 2a25a9d4-4429-452d-962b-e59401b75de6
   framebufferDepthMemorylessMode: 0
   projectName: ForTheTicket
-  organizationId: guancheng
+  organizationId: ww861028
   cloudEnabled: 0
   enableNativePlatformBackendsForNewInputSystem: 0
   disableOldInputManagerSupport: 0

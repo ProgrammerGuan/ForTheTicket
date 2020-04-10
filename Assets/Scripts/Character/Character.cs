@@ -22,9 +22,11 @@ public class Character
     public GameObject HavingSkillEffect;
     public GameObject SkillStartEffect;
     public GameObject ExplosionEffect;
+    public int SkillChargeCnt;
     //移動の計算
     private IEnumerator updatePositionCoroutine;
     private bool CRisRunning;
+    private bool someOneUseSkill;
     public Character(MainGame mainGame,string name,string characterName)
     {
         //ゲームマネージャー設定
@@ -45,10 +47,11 @@ public class Character
         HavingSkillEffect = myGameObject.transform.GetChild(4).gameObject;
         SkillStartEffect = myGameObject.transform.GetChild(5).gameObject;
         ExplosionEffect = myGameObject.transform.GetChild(6).gameObject;
-
+        HavingSkillEffect.SetActive(false);
+        SkillChargeCnt = 0;
         //移動計算動く判断
         CRisRunning = false;
-        
+        someOneUseSkill = false;
     }
 
     #region キャラクターのアクション
@@ -96,8 +99,11 @@ public class Character
 
     private void Skill()
     {
+        Parameters.ActionTime = Time.time + Parameters.SkillTime;
         Animator.SetTrigger("Skill");
         MainGame.StartCoroutine(SkillMove());
+        SetSkillChargeCnt(0);
+        MainGame.StopOtherCharacter(Name);
     }
 
     IEnumerator SkillMove()
@@ -215,23 +221,29 @@ public class Character
         MainGame.StopCoroutine(SetAction(action, time));
     }
 
-    public void GotDamage(bool GotDamageForward,bool skillDamage)
+    public void GotDamage(bool GotDamageForward, bool skillDamage)
     {
         var damageCoolDownTime = Parameters.DamageCoolDownTime;
-        if (skillDamage) damageCoolDownTime *= 2;
+        var distanceScale = 1f;
+        if(skillDamage) distanceScale = 3f;
+        var distance = Parameters.GotDamageDistance * distanceScale;
+        var backdir = Vector2.zero;
+        if (GotDamageForward) backdir = Vector2.left * distance;
+        else backdir = Vector2.right * distance;
+        if (skillDamage)
+        {
+            damageCoolDownTime *= 2;
+            backdir += Vector2.up * 8;
+            if (SkillChargeCnt < 3) SetSkillChargeCnt(SkillChargeCnt + 2);
+            else if(SkillChargeCnt == 3) SetSkillChargeCnt(SkillChargeCnt + 1);
+        }
+        else if(SkillChargeCnt < 4) SetSkillChargeCnt(SkillChargeCnt + 1);
         if (MainGame.myName == Name) Parameters.DamageTime = Time.time + damageCoolDownTime;
         //Right side got damage
         if (GotDamageForward) Turn("right");
         else Turn("left");  // Left side got damage
         SetAnimation("GotDamage");
         Animator.SetTrigger("GotDamage");
-        var distanceScale = 1f;
-        if (skillDamage) distanceScale = 3f;
-        var distance = Parameters.GotDamageDistance * distanceScale;
-        var backdir = Vector2.zero;
-        if (GotDamageForward) backdir = Vector2.left * distance;
-        else backdir = Vector2.right * distance;
-        if (skillDamage) backdir += Vector2.up*10;
         myGameObject.GetComponent<Rigidbody2D>().velocity = backdir;
         if (HavingTicket)
         {
@@ -294,18 +306,50 @@ public class Character
         myGameObject.transform.GetChild(1).gameObject.SetActive(HavingTicket);
     }
 
-    float UpdatePoCnt = 0;
+    
     private IEnumerator UpdatePosition(float vx)
     {
         CRisRunning = true;
-        UpdatePoCnt++;
         int cnt = 0;
         while(cnt < Parameters.SendDistance)
         {
+            if (someOneUseSkill)
+            {
+                MainGame.StartCoroutine(StopMySelf());
+                someOneUseSkill = false;
+            }
             if (CanMove) myGameObject.transform.position += new Vector3(vx * 0.001f, 0, 0);
+            
             cnt++;
             yield return new WaitForSeconds(0.001f);
         }
+    }
+
+    public void StopUpdatePosition()
+    {
+        someOneUseSkill = true;
+        Debug.Log(Name + " temporary top update position");
+    }
+
+    public IEnumerator StopMySelf()
+    {
+        Debug.Log(Name + " Set Stop");
+        var rigidbody = myGameObject.GetComponent<Rigidbody2D>();
+        rigidbody.gravityScale = 0;
+        var nowV = rigidbody.velocity;
+        rigidbody.velocity = Vector2.zero;
+        yield return new WaitForSeconds(Parameters.SkillTime);
+        Debug.Log(Name + " Reset Velocity");
+        rigidbody.gravityScale = 1;
+        rigidbody.velocity = nowV;
+    }
+
+    public void SetSkillChargeCnt(int cnt)
+    {
+        SkillChargeCnt = cnt;
+        if (SkillChargeCnt == 4) HavingSkillEffect.SetActive(true);
+        else HavingSkillEffect.SetActive(false);
+        if (Name == MainGame.myName) MainGame.UpdateSkillCharge(SkillChargeCnt);
     }
     #endregion
 }

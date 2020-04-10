@@ -15,7 +15,7 @@ public class MainGame : MonoBehaviour
     //自分のキャラクターの資料
     Vector3 myPos;
     public string myName;
-
+    public bool SkillCharged;
     //　Server
     bool Logined;
     bool startGameFlag;
@@ -34,7 +34,7 @@ public class MainGame : MonoBehaviour
     bool resetCameraFlag = false;
     private void Awake()
     {
-        Controller = new CharacterController();
+        Controller = new CharacterController(this);
         PlayerList = new Dictionary<string, Character>();
         gameUi = new GameUI(this);
         startGameFlag = false;
@@ -155,6 +155,17 @@ public class MainGame : MonoBehaviour
         Send(Message.GotDamage, message);
         Debug.Log(playerName + " got damage and send");
     }
+    public void StopOtherCharacter(string applicant)
+    {
+        foreach(var pair in PlayerList)
+        {
+            if (pair.Key != applicant)
+            {
+                if (pair.Key != myName) pair.Value.StopUpdatePosition();
+                else StartCoroutine(pair.Value.StopMySelf());
+            }
+        }
+    }
     #endregion
     #region GameSetting
     public void CreatPlayer(string playerName,string characterName,float x,float y,bool Turn,bool havingTicket)
@@ -244,6 +255,12 @@ public class MainGame : MonoBehaviour
         getTicketMessage.Data = getTicketData;
         Send(Message.GetTicket, getTicketMessage);
     }
+    public void UpdateSkillCharge(int cnt)
+    {
+        gameUi.SetSkillChargeCnt(cnt);
+        if (cnt == 4) SkillCharged = true;
+        else SkillCharged = false;
+    }
     #endregion
     #region Message
     void onMessage(Message msg)
@@ -306,7 +323,11 @@ public class MainGame : MonoBehaviour
                 break;
             case Message.GetTicket:
                 var GetTicketData = JsonUtility.FromJson<GetTicketMessage>(msg.Data);
-                PlayerList[GetTicketData.Data.Name].HaveTicket(true);
+                foreach(var pair in PlayerList)
+                {
+                    if (pair.Key == GetTicketData.Data.Name) pair.Value.HaveTicket(true);
+                    else pair.Value.HaveTicket(false);
+                }
                 if(GameObject.Find("Ticket"))Destroy(GameObject.Find("Ticket"));
                 break;
             case Message.Exit:

@@ -15,6 +15,11 @@ public enum ControlOrder
 
 public class CharacterController
 {
+    MainGame MainGame;
+    public CharacterController(MainGame mainGame)
+    {
+        MainGame = mainGame;
+    }
     public ControlOrder GetControl()
     {
         if (Do("action"))
@@ -24,11 +29,7 @@ public class CharacterController
                 Parameters.ActionTime = Time.time + Parameters.KickCoolDownTime;
                 return ControlOrder.Kick;
             }
-            else if (Input.GetKeyDown(KeyCode.Space))
-            {
-                Parameters.ActionTime = Time.time + Parameters.SkillTime;
-                return ControlOrder.Skill;
-            }
+            else if (Input.GetKeyDown(KeyCode.Space) && MainGame.SkillCharged) return ControlOrder.Skill;
             else if (Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.J)) return ControlOrder.Jump;
             else if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) return ControlOrder.moveLeft;
             else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) return ControlOrder.moveRight;

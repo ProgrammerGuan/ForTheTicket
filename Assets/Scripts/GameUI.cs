@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 public class GameUI
 {
     MainGame MainGame;
@@ -24,6 +25,12 @@ public class GameUI
     Camera UiCamera;
     float totaltime;
     int min, second;
+
+    List<GameObject> SkillChargePic;
+    List<GameObject> SkillChargePicLight;
+    GameObject SkillChargeNotFull;
+    GameObject SkillChargeFull;
+    
     public GameUI(MainGame game)
     {
         MainGame = game;
@@ -34,6 +41,7 @@ public class GameUI
         SettingTimeCounter();
         SettingWinMessage();
         SettingSelectCharacter();
+        SettingSkillCharge();
     }
 
     #region PreSetting
@@ -82,6 +90,26 @@ public class GameUI
         PlayerNames = new Dictionary<string, GameObject>();
         selectCharacter = "youngman";
     }
+
+    void SettingSkillCharge()
+    {
+        SkillChargePic = new List<GameObject>();
+        SkillChargePicLight = new List<GameObject>();
+        for (int i = 1; i <= 4; i++)
+        {
+            var pic = GameObject.Find(string.Format("Charge{0}", i));
+            SkillChargePic.Add(pic);
+            var picLight = pic.transform.GetChild(0).gameObject;
+            SkillChargePicLight.Add(picLight);
+            picLight.SetActive(false);
+            pic.SetActive(false);
+            Debug.Log(pic.name);
+        }
+        SkillChargeFull = GameObject.Find("CircleCharged");
+        SkillChargeFull.SetActive(false);
+        SkillChargeNotFull = GameObject.Find("CircleNotCharge");
+        SkillChargeNotFull.SetActive(false);
+    }
     #endregion
 
     void Login()
@@ -93,6 +121,8 @@ public class GameUI
         var myName = GameObject.Find("NameInput").transform.GetChild(2).GetComponent<Text>().text;
         MainGame.Login(myName,selectCharacter);
         StartButton.gameObject.SetActive(true);
+        SkillChargeNotFull.SetActive(true);
+        foreach (var p in SkillChargePic) p.SetActive(true);
     }
 
     void InitialCharacterBtns()
@@ -217,5 +247,18 @@ public class GameUI
     public void SetLoginFailMessage(bool show)
     {
         LoginFailMessage.SetActive(show);
+    }
+
+    public void SetSkillChargeCnt(int cnt)
+    {
+        int i = 1;
+        foreach (var l in SkillChargePicLight)
+        {
+            if (i <= cnt) l.SetActive(true);
+            else l.SetActive(false);
+            i++;
+        }
+        if (cnt == 4) SkillChargeFull.SetActive(true);
+        else SkillChargeFull.SetActive(false);
     }
 }
