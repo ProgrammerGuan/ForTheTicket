@@ -1,0 +1,4 @@
+D:\_NeedIt\ForTheTicket\Temp\bin\Debug\Assembly-CSharp-Editor.pdb
+D:\_NeedIt\ForTheTicket\obj\Debug\Assembly-CSharp-Editor.dll
+D:\_NeedIt\ForTheTicket\obj\Debug\Assembly-CSharp-Editor.pdb
+d:\_NeedIt\ForTheTicket\obj\Debug\Assembly-CSharp-Editor.csprojResolveAssemblyReference.cache

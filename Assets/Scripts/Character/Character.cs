@@ -27,11 +27,11 @@ public class Character
     private IEnumerator updatePositionCoroutine;
     private bool CRisRunning;
     private bool someOneUseSkill;
-    public Character(MainGame mainGame,string name,string characterName)
+    public Character(MainGame mainGame, string name, string characterName)
     {
         //ゲームマネージャー設定
         MainGame = mainGame;
-        
+
         //キャラクターの資料設定
         Name = name;
         CharacterName = characterName;
@@ -86,15 +86,15 @@ public class Character
             case ControlOrder.Idle:
                 //if(fromServer) Debug.Log("Idle turn is " + turn);
                 if (fromServer && CRisRunning) MainGame.StopCoroutine(updatePositionCoroutine);
-                if(fromServer) Idle(x, y, turn);
-                else Idle(x, y,TurnFlag);
+                if (fromServer) Idle(x, y, turn);
+                else Idle(x, y, TurnFlag);
                 break;
             case ControlOrder.Skill:
                 Skill();
                 break;
-            }
-        
-        
+        }
+
+
     }
 
     private void Skill()
@@ -113,7 +113,7 @@ public class Character
         var rigidbody = myGameObject.GetComponent<Rigidbody2D>();
         rigidbody.gravityScale = 0;
         rigidbody.velocity = 2 * d;
-        while(myGameObject.transform.position.y < goalPos.y && rigidbody.velocity != Vector2.zero)
+        while (myGameObject.transform.position.y < goalPos.y && rigidbody.velocity != Vector2.zero)
         {
             yield return new WaitForSeconds(0.01f);
         }
@@ -137,7 +137,7 @@ public class Character
         Debug.Log("skill range false");
     }
 
-    private void Idle(float x,float y,bool turn)
+    private void Idle(float x, float y, bool turn)
     {
         if (!Animator.GetBool("Jump")) SetAnimation("Idle");
         myGameObject.transform.position = new Vector3(x, y);
@@ -149,7 +149,7 @@ public class Character
     {
         SetAnimation("Jump");
         var rigidbody = myGameObject.GetComponent<Rigidbody2D>();
-        if (rigidbody.velocity.y > 0) rigidbody.velocity = new Vector2(rigidbody.velocity.x,0);
+        if (rigidbody.velocity.y > 0) rigidbody.velocity = new Vector2(rigidbody.velocity.x, 0);
         rigidbody.AddForce(Vector2.up * Parameters.JumpHeight, ForceMode2D.Impulse);
     }
 
@@ -173,7 +173,7 @@ public class Character
                 myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.left * Parameters.JumpKickDistance;
             else myGameObject.GetComponent<Rigidbody2D>().velocity = Vector3.left * Parameters.NormalKickDistance;
         }
-        MainGame.StartCoroutine(SetAction("Kick", Parameters.KickCoolDownTime-0.1f));
+        MainGame.StartCoroutine(SetAction("Kick", Parameters.KickCoolDownTime - 0.1f));
         MainGame.StartCoroutine(SetKickRange());
     }
 
@@ -225,7 +225,7 @@ public class Character
     {
         var damageCoolDownTime = Parameters.DamageCoolDownTime;
         var distanceScale = 1f;
-        if(skillDamage) distanceScale = 3f;
+        if (skillDamage) distanceScale = 3f;
         var distance = Parameters.GotDamageDistance * distanceScale;
         var backdir = Vector2.zero;
         if (GotDamageForward) backdir = Vector2.left * distance;
@@ -235,9 +235,9 @@ public class Character
             damageCoolDownTime *= 2;
             backdir += Vector2.up * 8;
             if (SkillChargeCnt < 3) SetSkillChargeCnt(SkillChargeCnt + 2);
-            else if(SkillChargeCnt == 3) SetSkillChargeCnt(SkillChargeCnt + 1);
+            else if (SkillChargeCnt == 3) SetSkillChargeCnt(SkillChargeCnt + 1);
         }
-        else if(SkillChargeCnt < 4) SetSkillChargeCnt(SkillChargeCnt + 1);
+        else if (SkillChargeCnt < 4) SetSkillChargeCnt(SkillChargeCnt + 1);
         if (MainGame.myName == Name) Parameters.DamageTime = Time.time + damageCoolDownTime;
         //Right side got damage
         if (GotDamageForward) Turn("right");
@@ -264,7 +264,7 @@ public class Character
             Animator.SetBool("Walk", (action == "Walk") ? true : false);
             Animator.SetBool("Idle", (action == "Idle") ? true : false);
         }
-            
+
     }
 
     public void AnimatorFrameStop()
@@ -286,7 +286,7 @@ public class Character
         rigidbody.velocity = nowSpeed;
         Debug.Log(Name + "reset velocity : " + nowSpeed);
         Animator.speed = 1;
-        
+
     }
     #endregion
 
@@ -306,12 +306,12 @@ public class Character
         myGameObject.transform.GetChild(1).gameObject.SetActive(HavingTicket);
     }
 
-    
+
     private IEnumerator UpdatePosition(float vx)
     {
         CRisRunning = true;
         int cnt = 0;
-        while(cnt < Parameters.SendDistance)
+        while (cnt < Parameters.SendDistance)
         {
             if (someOneUseSkill)
             {
@@ -319,7 +319,7 @@ public class Character
                 someOneUseSkill = false;
             }
             if (CanMove) myGameObject.transform.position += new Vector3(vx * 0.001f, 0, 0);
-            
+
             cnt++;
             yield return new WaitForSeconds(0.001f);
         }

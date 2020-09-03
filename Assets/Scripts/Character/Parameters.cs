@@ -6,7 +6,7 @@
     public static float CanJump = 0;
     public static float KickCoolDownTime = 1.3f;
     public static float SkillTime = 3.7f;
-    public static float DamageCoolDownTime = 1.7f;
+    public static float DamageCoolDownTime = 1.8f;
     public static float ActionTime = 0f;
     public static float DamageTime = 0f;
     public static float FallTicketHeight = 6f;

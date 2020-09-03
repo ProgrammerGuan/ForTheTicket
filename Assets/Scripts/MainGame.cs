@@ -45,12 +45,10 @@ public class MainGame : MonoBehaviour
     {
         //192.168.8.53 クァンのIP
         //192.168.11.17 クァンのパソコンip
-        client = new WsClient("ws://192.168.11.17:4000");
-
+        client = new WsClient("ws://192.168.43.253:4000");
         //string hostname = Dns.GetHostName();
         //IPAddress[] adrList = Dns.GetHostAddresses(hostname);
         //client = new WsClient("ws://" + adrList[1].ToString() + ":4000");
-
         client.OnMessage = onMessage;
         cameraOriPos = Camera.main.transform.position;
     }
@@ -63,7 +61,7 @@ public class MainGame : MonoBehaviour
         if (messages.Count > 0)
         {
             var msg = messages.Pop();
-            if(Logined) UpdateMessage(msg);
+            if (Logined) UpdateMessage(msg);
         }
         if (startGameFlag) gameUi.UpdateTime();
 
@@ -73,7 +71,7 @@ public class MainGame : MonoBehaviour
         CameraUpdateShake();
     }
     #region CameraShake
-    public void CameraShakeTrigger(float time,float range)
+    public void CameraShakeTrigger(float time, float range)
     {
         totalTime = time;
         currentTime = time;
@@ -143,7 +141,7 @@ public class MainGame : MonoBehaviour
     public void MineGotDamage(string playerName, bool DamageForward, string kickPlayerName, bool skill)
     {
         if (playerName != myName) return;
-        CameraShakeTrigger(Parameters.KickShakeTime,Parameters.KickShakeRange);
+        CameraShakeTrigger(Parameters.KickShakeTime, Parameters.KickShakeRange);
         PlayerList[playerName].AnimatorFrameStop();
         var message = new PlayerGotDamageMessage();
         var data = new PlayerGotDamageData();
@@ -157,7 +155,7 @@ public class MainGame : MonoBehaviour
     }
     public void StopOtherCharacter(string applicant)
     {
-        foreach(var pair in PlayerList)
+        foreach (var pair in PlayerList)
         {
             if (pair.Key != applicant)
             {
@@ -168,17 +166,17 @@ public class MainGame : MonoBehaviour
     }
     #endregion
     #region GameSetting
-    public void CreatPlayer(string playerName,string characterName,float x,float y,bool Turn,bool havingTicket)
+    public void CreatPlayer(string playerName, string characterName, float x, float y, bool Turn, bool havingTicket)
     {
-        var newplayer = Instantiate(Resources.Load(string.Format("Prefabs/{0}", characterName)), new Vector3(x,y,0), Quaternion.identity);
+        var newplayer = Instantiate(Resources.Load(string.Format("Prefabs/{0}", characterName)), new Vector3(x, y, 0), Quaternion.identity);
         newplayer.name = playerName;
         GameObject.Find(newplayer.name).GetComponent<CharacterDetector>().SetMyName(newplayer.name);
-        var Character = new Character(this,playerName,characterName);
+        var Character = new Character(this, playerName, characterName);
         PlayerList.Add(playerName, Character);
         Character.HaveTicket(havingTicket);
         gameUi.AddPlayerName(playerName);
     }
-    public void Login(string name,string character)
+    public void Login(string name, string character)
     {
         Logined = true;
         myName = name;
@@ -223,12 +221,12 @@ public class MainGame : MonoBehaviour
         gameUi.CloseReadyCount();
         GameSetting(message);
     }
-    public void GameEnd(string winnerName,int kickCnt)
+    public void GameEnd(string winnerName, int kickCnt)
     {
         startGameFlag = false;
         Debug.Log(winnerName + " kick " + kickCnt + "times");
-        if (winnerName!= "N;O:N-E,") gameUi.GameEnd(winnerName,PlayerList[winnerName].CharacterName,kickCnt);
-        else gameUi.GameEnd(winnerName, "null",0);
+        if (winnerName != "N;O:N-E,") gameUi.GameEnd(winnerName, PlayerList[winnerName].CharacterName, kickCnt);
+        else gameUi.GameEnd(winnerName, "null", 0);
     }
     void CreatTicket(bool fromPlayer, float x, float y)
     {
@@ -268,7 +266,7 @@ public class MainGame : MonoBehaviour
         messages.Push(msg);
     }
 
-    public void Send(string type,object data)
+    public void Send(string type, object data)
     {
         client.SendMessage(type, data);
     }
@@ -280,12 +278,12 @@ public class MainGame : MonoBehaviour
         {
             case Message.Login:
                 var d = msg.Data;
-                
+
                 //Debug.Log(d.Length);
                 var LoginData = JsonUtility.FromJson<LoginMessage>(msg.Data);
                 foreach (var player in LoginData.Players)
                 {
-                    CreatPlayer(player.Name, player.Character, player.X, player.Y, player.Turn,player.HavingTicket);
+                    CreatPlayer(player.Name, player.Character, player.X, player.Y, player.Turn, player.HavingTicket);
                 }
                 Debug.Log(LoginData.remainingTime);
                 if (LoginData.remainingTime > 0)
@@ -304,18 +302,18 @@ public class MainGame : MonoBehaviour
                 break;
             case Message.Join:
                 var JoinData = JsonUtility.FromJson<JoinMessage>(msg.Data);
-                CreatPlayer(JoinData.Data.Name, JoinData.Data.Character, JoinData.Data.X, JoinData.Data.Y, JoinData.Data.Turn,false);
+                CreatPlayer(JoinData.Data.Name, JoinData.Data.Character, JoinData.Data.X, JoinData.Data.Y, JoinData.Data.Turn, false);
                 //Debug.Log(JoinData.Data.Name + " Join");
                 break;
             case Message.Act:
                 var ActData = JsonUtility.FromJson<PlayerActionMessage>(msg.Data);
-                if(PlayerList.ContainsKey(ActData.Data.Name))
-                    PlayerList[ActData.Data.Name].Action(ActData.Data.Control,ActData.Data.X,ActData.Data.Y,ActData.Data.Turn,true,ActData.Data.Vx);
+                if (PlayerList.ContainsKey(ActData.Data.Name))
+                    PlayerList[ActData.Data.Name].Action(ActData.Data.Control, ActData.Data.X, ActData.Data.Y, ActData.Data.Turn, true, ActData.Data.Vx);
                 //myPos = PlayerList[myName].transform.position;
                 break;
             case Message.GotDamage:
                 var DamageData = JsonUtility.FromJson<PlayerGotDamageMessage>(msg.Data);
-                PlayerList[DamageData.Data.Name].GotDamage(DamageData.Data.GotDamageForward,DamageData.Data.Skill);
+                PlayerList[DamageData.Data.Name].GotDamage(DamageData.Data.GotDamageForward, DamageData.Data.Skill);
                 break;
             case Message.BornTicket:
                 var BornTicketData = JsonUtility.FromJson<BronTicketMessage>(msg.Data);
@@ -323,12 +321,12 @@ public class MainGame : MonoBehaviour
                 break;
             case Message.GetTicket:
                 var GetTicketData = JsonUtility.FromJson<GetTicketMessage>(msg.Data);
-                foreach(var pair in PlayerList)
+                foreach (var pair in PlayerList)
                 {
                     if (pair.Key == GetTicketData.Data.Name) pair.Value.HaveTicket(true);
                     else pair.Value.HaveTicket(false);
                 }
-                if(GameObject.Find("Ticket"))Destroy(GameObject.Find("Ticket"));
+                if (GameObject.Find("Ticket")) Destroy(GameObject.Find("Ticket"));
                 break;
             case Message.Exit:
                 var ExitMessage = JsonUtility.FromJson<ExitMessage>(msg.Data);
@@ -344,14 +342,14 @@ public class MainGame : MonoBehaviour
                 break;
             case Message.GameEnd:
                 var GameEndMessage = JsonUtility.FromJson<GameEndMessage>(msg.Data);
-                GameEnd(GameEndMessage.Data.WinnerName,GameEndMessage.Data.KickCnt);
+                GameEnd(GameEndMessage.Data.WinnerName, GameEndMessage.Data.KickCnt);
                 break;
             default:
                 //Debug.Log("unknowed msg");
                 //Debug.Log(msg.Type);
                 break;
         }
-        
+
     }
     #endregion
 }
@@ -488,7 +486,7 @@ public class GameSettingMessage
 [Serializable]
 public struct GameSettingData
 {
-    public List<PlayerData>PlayerData;
+    public List<PlayerData> PlayerData;
     public BornTicketData TicketData;
     public int RemainingTime;
 }

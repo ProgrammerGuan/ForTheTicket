@@ -21,7 +21,7 @@ public class GameUI
 
     Text TimeCount;
     Text ReadyCount;
-    Dictionary<string,GameObject> PlayerNames;
+    Dictionary<string, GameObject> PlayerNames;
     Camera UiCamera;
     float totaltime;
     int min, second;
@@ -30,7 +30,7 @@ public class GameUI
     List<GameObject> SkillChargePicLight;
     GameObject SkillChargeNotFull;
     GameObject SkillChargeFull;
-    
+
     public GameUI(MainGame game)
     {
         MainGame = game;
@@ -43,7 +43,6 @@ public class GameUI
         SettingSelectCharacter();
         SettingSkillCharge();
     }
-
     #region PreSetting
     void SettingLoginButton()
     {
@@ -119,7 +118,7 @@ public class GameUI
         foreach (var c in CharacterBtns) c.gameObject.SetActive(false);
         SelectCharacterText.SetActive(false);
         var myName = GameObject.Find("NameInput").transform.GetChild(2).GetComponent<Text>().text;
-        MainGame.Login(myName,selectCharacter);
+        MainGame.Login(myName, selectCharacter);
         StartButton.gameObject.SetActive(true);
         SkillChargeNotFull.SetActive(true);
         foreach (var p in SkillChargePic) p.SetActive(true);
@@ -157,7 +156,7 @@ public class GameUI
         name_ui.GetComponent<Text>().text = playerName;
         name_ui.transform.parent = GameObject.Find("Canvas").transform;
         name_ui.transform.SetAsFirstSibling();
-        PlayerNames.Add(playerName,name_ui);
+        PlayerNames.Add(playerName, name_ui);
     }
 
     public void RemovePlayerName(string playerName)
@@ -177,7 +176,7 @@ public class GameUI
 
     public void UpdateReadyCount(int cnt)
     {
-        if(!ReadyCount.gameObject.active) ReadyCount.gameObject.SetActive(true);
+        if (!ReadyCount.gameObject.active) ReadyCount.gameObject.SetActive(true);
         ReadyCount.text = cnt.ToString();
     }
 
@@ -194,12 +193,12 @@ public class GameUI
         totaltime = remainingTime;
     }
 
-    public void GameEnd(string winnerName, string characterName,int kickCnt)
+    public void GameEnd(string winnerName, string characterName, int kickCnt)
     {
         StartButton.gameObject.SetActive(true);
         TimeCount.gameObject.SetActive(false);
         WinnerMessage.SetActive(true);
-        if(winnerName != "N;O:N-E,")
+        if (winnerName != "N;O:N-E,")
         {
             GameObject.Find("WinnerTitle").GetComponent<Text>().text = "WINNER";
             GameObject.Find("NameText").GetComponent<Text>().text = winnerName;
@@ -208,7 +207,7 @@ public class GameUI
             GameObject.Find(showPlayer.name).transform.SetParent(GameObject.Find("Winner").transform);
             GameObject.Find(showPlayer.name).transform.localPosition = Vector3.zero;
             GameObject.Find("KickCount").GetComponent<Text>().text = kickCnt.ToString();
-            
+
         }
         else
         {
@@ -223,14 +222,14 @@ public class GameUI
         totaltime -= Time.deltaTime;
         min = (int)totaltime / 60;
         second = (int)totaltime % 60;
-        if(second<10) TimeCount.text = min.ToString() + ":0" + second.ToString();
+        if (second < 10) TimeCount.text = min.ToString() + ":0" + second.ToString();
         else TimeCount.text = min.ToString() + ":" + second.ToString();
     }
 
     public void ExitWinMessage()
     {
         WinnerMessage.SetActive(false);
-        if(GameObject.Find("Winner").transform.childCount>0)
+        if (GameObject.Find("Winner").transform.childCount > 0)
             MainGame.Destroy(GameObject.Find("winnerModel"));
     }
 
